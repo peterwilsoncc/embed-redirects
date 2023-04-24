@@ -11,3 +11,4 @@
 
 # Misc.
 /.phpunit.result.cache
+.DS_Store
