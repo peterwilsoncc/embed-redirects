@@ -1,0 +1,13 @@
+# Build files.
+/build/
+
+# Local configuration overrides.
+/phpcs.xml
+/phpunit.xml
+
+# Dependecies.
+/vendor/
+/node_modules/
+
+# Misc.
+/.phpunit.result.cache
