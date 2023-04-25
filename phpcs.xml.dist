@@ -21,6 +21,9 @@
 	<rule ref="WordPress">
 		<!-- Namespace includes a vendor prefix -->
 		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedNamespaceFound"/>
+
+		<!-- sanitize_url() was undprected in WordPress 5.9.0 -->
+		<exclude name="WordPress.WP.DeprecatedFunctions.sanitize_urlFound"/>
 	</rule>
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
 		<properties>
