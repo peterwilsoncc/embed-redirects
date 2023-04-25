@@ -21,6 +21,7 @@
 
 namespace PWCC\EmbedRedirects;
 
+
 function coding_standards_failures () {
 	$array = [
 		'mis' => 'aligned',
