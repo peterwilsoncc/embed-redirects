@@ -18,6 +18,36 @@ function bootstrap() {
 }
 
 /**
+ * Create a checksum for a URL.
+ *
+ * Checksums differ from a nonce in that the same URL will always use the
+ * same value, regardless of the user. The purpose of the checksum is to
+ * validate that the URL is safe to redirect to.
+ *
+ * For the purpose of hashing, the `nonce` scheme is used as it's the
+ * best match for the purpose.
+ *
+ * @param string $url Destination URL.
+ * @return string Checksum.
+ */
+function create_checksum( $url ) {
+	return wp_hash( $url, 'nonce' );
+}
+
+/**
+ * Validate a checksum for a URL.
+ *
+ * @param string $url      Destination URL.
+ * @param string $checksum Checksum to validate.
+ * @return bool True if the checksum is valid, false otherwise.
+ */
+function validate_checksum( $url, $checksum ) {
+	// Checksum is case insensitive.
+	$checksum = strtolower( $checksum );
+	return hash_equals( $checksum, create_checksum( $url ) );
+}
+
+/**
  * Add rewrite rules.
  *
  * Create the rewrite rule for enabling redirects.
