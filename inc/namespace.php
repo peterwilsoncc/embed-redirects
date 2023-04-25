@@ -141,5 +141,9 @@ function send_headers() {
 	 */
 	// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
 	wp_redirect( $redirect, 302, 'Open-Redirect' );
+	if ( class_exists( '\WP_UnitTestCase' ) ) {
+		// Do not exit if running unit tests.
+		return;
+	}
 	exit;
 }
