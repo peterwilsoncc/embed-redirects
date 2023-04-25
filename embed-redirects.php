@@ -21,10 +21,12 @@
 
 namespace PWCC\EmbedRedirects;
 
-
-function coding_standards_failures () {
-	$array = [
+/**
+ * Only warnings now.
+ */
+function coding_standards_failures() {
+	$array = array(
 		'mis' => 'aligned',
 		'to' => 'trigger warning',
-	];
+	);
 }
