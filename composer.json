@@ -1,5 +1,5 @@
 {
-    "name": "peterwilsoncc/embed-redirect",
+    "name": "peterwilsoncc/embed-redirects",
     "description": "A WordPress plugin to enable links in embeds to third party sites via a redirect.",
     "type": "wordpress-plugin",
     "require-dev": {
