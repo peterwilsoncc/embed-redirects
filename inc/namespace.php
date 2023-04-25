@@ -15,6 +15,7 @@ namespace PWCC\EmbedRedirects;
  */
 function bootstrap() {
 	add_action( 'init', __NAMESPACE__ . '\\rewrite_rules' );
+	add_action( 'parse_request', __NAMESPACE__ . '\\parse_request' );
 }
 
 /**
@@ -75,4 +76,70 @@ function rewrite_rules() {
 	global $wp;
 	$wp->add_query_var( 'open-redirect' );
 	$wp->add_query_var( 'pwcc-er-checksum' );
+}
+
+/**
+ * Parse the request.
+ *
+ * If the request is for an open redirect, validate the checksum and throw
+ * a 404 error if it is invalid.
+ *
+ * If the checksum is valid, redirect on the send_headers action.
+ *
+ * @param \WP $wp WordPress request object.
+ */
+function parse_request( $wp ) {
+	if (
+		! isset( $wp->query_vars['open-redirect'] )
+		|| ! isset( $wp->query_vars['pwcc-er-checksum'] )
+	) {
+		return;
+	}
+
+	/*
+	 * Prevent the main query from running.
+	 *
+	 * The open-redirect query variable is not used to retrieve posts so the
+	 * main query is not needed.
+	 */
+	add_filter( 'posts_pre_query', '__return_empty_array' );
+
+	$redirect = $wp->query_vars['open-redirect'];
+	$checksum = $wp->query_vars['pwcc-er-checksum'];
+
+	if (
+		! sanitize_url( $redirect ) === $redirect
+		|| ! validate_checksum( $redirect, $checksum )
+	) {
+		$wp->query_vars['error'] = '404';
+		return;
+	}
+
+	add_action( 'send_headers', __NAMESPACE__ . '\\send_headers' );
+}
+
+/**
+ * Send the redirect headers.
+ */
+function send_headers() {
+	// Revalidate the url and checksum.
+	$redirect = get_query_var( 'open-redirect' );
+	$checksum = get_query_var( 'pwcc-er-checksum' );
+
+	if (
+		! sanitize_url( $redirect ) === $redirect
+		|| ! validate_checksum( $redirect, $checksum )
+	) {
+		return;
+	}
+
+	/*
+	 * Redirect to the destination URL.
+	 *
+	 * The use of a checksum is the safety mechanism to prevent open redirects.
+	 * That allows the use of `wp_redirect()` rather than `wp_safe_redirect()`.
+	 */
+	// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
+	wp_redirect( $redirect, 302, 'Open-Redirect' );
+	exit;
 }
