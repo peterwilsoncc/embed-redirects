@@ -16,6 +16,7 @@ namespace PWCC\EmbedRedirects;
 function bootstrap() {
 	add_action( 'init', __NAMESPACE__ . '\\rewrite_rules' );
 	add_action( 'parse_request', __NAMESPACE__ . '\\parse_request' );
+	add_filter( 'the_content', __NAMESPACE__ . '\\filter_the_content' );
 }
 
 /**
@@ -146,4 +147,50 @@ function send_headers() {
 		return;
 	}
 	exit;
+}
+
+function filter_the_content( $content ) {
+	if ( ! is_embed() ) {
+		return $content;
+	}
+
+	// Process HTML to find links.
+	$dom = new \WP_HTML_Tag_Processor( $content );
+	while ( $dom->next_tag( 'a' ) ) {
+		$href = $dom->get_attribute( 'href' );
+		if ( ! $href ) {
+			continue;
+		}
+
+		// Check if the link is to a third party site.
+		$host = wp_parse_url( $href, PHP_URL_HOST );
+		if ( ! $host ) {
+			continue;
+		}
+
+		if ( wp_parse_url( home_url(), PHP_URL_HOST ) === $host ) {
+			continue;
+		}
+
+		// Only allow HTTP and HTTPS links.
+		$scheme = wp_parse_url( $href, PHP_URL_SCHEME );
+		if ( ! $scheme || ! in_array( $scheme, [ 'http', 'https' ], true ) ) {
+			continue;
+		}
+
+		$checksum = create_checksum( $href );
+
+		// Create the redirect URL.
+		$redirect = add_query_arg(
+			[
+				'open-redirect' => rawurlencode( $href ),
+			],
+			home_url( "open-redirect/{$checksum}/" )
+		);
+
+		// Replace the link with the redirect URL.
+		$dom->set_attribute( 'href', esc_url( $redirect ) );
+	}
+
+	return $dom->get_updated_html();
 }
