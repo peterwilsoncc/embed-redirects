@@ -158,7 +158,7 @@ function filter_the_content( $content ) {
 	$dom = new \WP_HTML_Tag_Processor( $content );
 	while ( $dom->next_tag( 'a' ) ) {
 		$href = $dom->get_attribute( 'href' );
-		if ( ! $href ) {
+		if ( ! is_string( $href ) ) {
 			continue;
 		}
 
