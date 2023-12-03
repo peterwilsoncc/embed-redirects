@@ -150,7 +150,8 @@ function send_headers() {
 }
 
 function filter_the_content( $content ) {
-	if ( ! is_embed() ) {
+	// Only process content with links when viewing an embed.
+	if ( ! str_contains( $content, 'href=' ) || ! is_embed() ) {
 		return $content;
 	}
 
