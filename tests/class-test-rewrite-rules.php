@@ -66,7 +66,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 		);
 
 		$this->go_to( '/open-redirect/1234567890/?open-redirect=http%3A%2F%2Fexample.org%2F' );
-		$this->assertSame( $post_table_queries, 0 );
+		$this->assertSame( 0, $post_table_queries );
 	}
 
 	/**
@@ -86,7 +86,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 		);
 
 		$this->go_to( '/open-redirect/1234567890/?open-redirect=http%3A%2F%2Fexample.org%2F' );
-		$this->assertSame( $filter->get_call_count(), 0 );
+		$this->assertSame( 0, $filter->get_call_count() );
 	}
 
 	/**
@@ -106,6 +106,6 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 		$redirect = 'http://example.org/';
 		$checksum = \PWCC\EmbedRedirects\create_checksum( $redirect );
 		$this->go_to( "/open-redirect/{$checksum}/?open-redirect=" . rawurlencode( $redirect ) );
-		$this->assertSame( $actual, $redirect );
+		$this->assertSame( $redirect, $actual );
 	}
 }
