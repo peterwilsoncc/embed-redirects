@@ -185,7 +185,7 @@ function filter_the_content( $content ) {
 
 		// Only allow HTTP and HTTPS links.
 		$scheme = wp_parse_url( $href, PHP_URL_SCHEME );
-		if ( ! $scheme || ! in_array( $scheme, [ 'http', 'https' ], true ) ) {
+		if ( ! $scheme || ! in_array( $scheme, array( 'http', 'https' ), true ) ) {
 			continue;
 		}
 
@@ -193,9 +193,9 @@ function filter_the_content( $content ) {
 
 		// Create the redirect URL.
 		$redirect = add_query_arg(
-			[
+			array(
 				'open-redirect' => rawurlencode( $href ),
-			],
+			),
 			home_url( "open-redirect/{$checksum}/" )
 		);
 
