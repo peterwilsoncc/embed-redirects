@@ -149,6 +149,16 @@ function send_headers() {
 	exit;
 }
 
+/**
+ * Modify links for embeds.
+ *
+ * This replaces the links in the content with a redirect URL. The
+ * default JavaScript only allows for redirects to the source site's
+ * host so this resolves that by creating a redirect.
+ *
+ * @param string $content Post content.
+ * @return string Updated post content.
+ */
 function filter_the_content( $content ) {
 	// Only process content with links when viewing an embed.
 	if ( ! str_contains( $content, 'href=' ) || ! is_embed() ) {
