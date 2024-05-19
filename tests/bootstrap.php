@@ -30,7 +30,7 @@ require_once "{$_pwcc_er_tests_dir}/includes/functions.php";
  * Manually load the plugin being tested.
  */
 function _pwcc_er_manually_load_plugin() {
-	require dirname( dirname( __FILE__ ) ) . '/embed-redirects.php';
+	require dirname( __DIR__ ) . '/embed-redirects.php';
 }
 
 tests_add_filter( 'muplugins_loaded', '_pwcc_er_manually_load_plugin' );

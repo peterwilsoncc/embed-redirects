@@ -8,8 +8,8 @@
 	convertWarningsToExceptions="true"
 	>
 	<testsuites>
-		<testsuite name="post-content-warnings">
-			<directory prefix="test-" suffix=".php">./tests/</directory>
+		<testsuite name="embed-redirects">
+			<directory prefix="class-test-" suffix=".php">./tests/</directory>
 			<exclude>./tests/test-sample.php</exclude>
 		</testsuite>
 	</testsuites>
