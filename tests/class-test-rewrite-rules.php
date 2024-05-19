@@ -196,4 +196,19 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 			'Query URL'         => array( '?query=string' ),
 		);
 	}
+
+	/**
+	 * Ensure the content is not changed for an empty href attribute.
+	 */
+	public function test_content_not_changed_for_empty_href() {
+		$content = '<a href>Link</a>';
+
+		// Set up the conditionals so is_embed is true.
+		$this->go_to( get_post_embed_url( self::$post_id ) );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- testing WP hook.
+		$filtered_content = apply_filters( 'the_content', $content );
+
+		$this->assertStringNotContainsString( 'href="' . home_url( '/open-redirect/' ), $filtered_content );
+		$this->assertStringContainsString( $content, $filtered_content );
+	}
 }
