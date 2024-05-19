@@ -82,7 +82,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 			}
 		);
 
-		$this->go_to( '/open-redirect/1234567890/?open-redirect=http%3A%2F%2Fexample.org%2F' );
+		$this->go_to( '/open-redirect/1234567890/?open-redirect=http%3A%2F%2Fshuckedmusical.com%2F' );
 		$this->assertSame( 0, $post_table_queries );
 	}
 
@@ -102,7 +102,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 			}
 		);
 
-		$this->go_to( '/open-redirect/1234567890/?open-redirect=http%3A%2F%2Fexample.org%2F' );
+		$this->go_to( '/open-redirect/1234567890/?open-redirect=http%3A%2F%2Fshuckedmusical.com%2F' );
 		$this->assertSame( 0, $filter->get_call_count() );
 	}
 
@@ -120,7 +120,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 			}
 		);
 
-		$redirect = 'http://example.org/';
+		$redirect = 'https://shuckedmusical.com/';
 		$checksum = \PWCC\EmbedRedirects\create_checksum( $redirect );
 		$this->go_to( "/open-redirect/{$checksum}/?open-redirect=" . rawurlencode( $redirect ) );
 		$this->assertSame( $redirect, $actual );
@@ -153,8 +153,8 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	 */
 	public function data_content_updated_for_valid_links() {
 		return array(
-			'http URL'  => array( 'http://example.org/' ),
-			'https URL' => array( 'https://example.org/' ),
+			'http URL'  => array( 'http://shuckedmusical.com/' ),
+			'https URL' => array( 'https://shuckedmusical.com/' ),
 		);
 	}
 
@@ -186,9 +186,9 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	 */
 	public function data_content_is_not_updated_for_invalid_links() {
 		return array(
-			'No scheme'         => array( 'example.org/' ),
-			'FTP URL'           => array( 'ftp://example.org/' ),
-			'Mailto URL'        => array( 'mailto:example@example.org' ),
+			'No scheme'         => array( 'shuckedmusical.com/' ),
+			'FTP URL'           => array( 'ftp://shuckedmusical.com/' ),
+			'Mailto URL'        => array( 'mailto:bounce@shuckedmusical.com' ),
 			'JavaScript URL'    => array( 'javascript:alert("Hello, World!");' ),
 			'Telephone URL'     => array( 'tel:+1234567890' ),
 			'Data URL'          => array( 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==' ),
