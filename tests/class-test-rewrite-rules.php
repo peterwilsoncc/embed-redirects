@@ -147,8 +147,47 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	 */
 	public function data_content_updated_for_valid_links() {
 		return array(
-			array( 'http://example.org/' ),
-			array( 'https://example.org/' ),
+			'http URL'  => array( 'http://example.org/' ),
+			'https URL' => array( 'https://example.org/' ),
+		);
+	}
+
+	/**
+	 * Ensure the content is not updated for invalid links.
+	 *
+	 * @dataProvider data_content_is_not_updated_for_invalid_links
+	 *
+	 * @param string $link Link to test.
+	 */
+	public function test_content_is_not_updated_for_invalid_links( $link ) {
+		$content  = "<a href=\"{$link}\">Link</a>";
+		$checksum = \PWCC\EmbedRedirects\create_checksum( $link );
+
+		// Set up the conditionals so is_embed is true.
+		$this->go_to( get_post_embed_url( self::$post_id ) );
+		$filtered_content = apply_filters( 'the_content', $content );
+
+		$this->assertStringNotContainsString( 'href="' . home_url( "/open-redirect/{$checksum}/?open-redirect=" . rawurlencode( $link ) ) . '"', $filtered_content );
+	}
+
+	/**
+	 * Data provider for test_content_is_not_updated_for_invalid_links.
+	 *
+	 * @return array[]
+	 */
+	public function data_content_is_not_updated_for_invalid_links() {
+		return array(
+			'No scheme'         => array( 'example.org/' ),
+			'FTP URL'           => array( 'ftp://example.org/' ),
+			'Mailto URL'        => array( 'mailto:example@example.org' ),
+			'JavaScript URL'    => array( 'javascript:alert("Hello, World!");' ),
+			'Telephone URL'     => array( 'tel:+1234567890' ),
+			'Data URL'          => array( 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==' ),
+			'Empty URL'         => array( '' ),
+			'Relative URL'      => array( '../index.html' ),
+			'Absolute path URL' => array( '/index.html' ),
+			'Anchor URL'        => array( '#top' ),
+			'Query URL'         => array( '?query=string' ),
 		);
 	}
 }
