@@ -55,27 +55,27 @@ function validate_checksum( $url, $checksum ) {
  * Create the rewrite rule for enabling redirects.
  *
  * Two rewrite tags & query variables are created:
- * - open-redirect: The URL to redirect to.
+ * - verified-redirect: The URL to redirect to.
  * - pwcc-er-checksum: The checksum to verify the redirect.
  *
  * One rewrite rule is created:
- * - open-redirect/([0-9a-zA-Z]+?)/?$: The regex portion represents
+ * - verified-redirect/([0-9a-zA-Z]+?)/?$: The regex portion represents
  *   the checksum.
  *
  * @global \WP $wp WordPress request object.
  */
 function rewrite_rules() {
-	add_rewrite_tag( '%open-redirect%', '([^&]+)', 'open-redirect=' );
+	add_rewrite_tag( '%verified-redirect%', '([^&]+)', 'verified-redirect=' );
 	add_rewrite_tag( '%pwcc-er-checksum%', '([^&]+)', 'pwcc-er-checksum=' );
 
 	add_rewrite_rule(
-		'^open-redirect/([0-9a-zA-Z]+?)/?$',
+		'^verified-redirect/([0-9a-zA-Z]+?)/?$',
 		'index.php?pwcc-er-checksum=$matches[1]',
 		'top'
 	);
 
 	global $wp;
-	$wp->add_query_var( 'open-redirect' );
+	$wp->add_query_var( 'verified-redirect' );
 	$wp->add_query_var( 'pwcc-er-checksum' );
 }
 
@@ -91,7 +91,7 @@ function rewrite_rules() {
  */
 function parse_request( $wp ) {
 	if (
-		! isset( $wp->query_vars['open-redirect'] )
+		! isset( $wp->query_vars['verified-redirect'] )
 		|| ! isset( $wp->query_vars['pwcc-er-checksum'] )
 	) {
 		return;
@@ -100,12 +100,12 @@ function parse_request( $wp ) {
 	/*
 	 * Prevent the main query from running.
 	 *
-	 * The open-redirect query variable is not used to retrieve posts so the
+	 * The verified-redirect query variable is not used to retrieve posts so the
 	 * main query is not needed.
 	 */
 	add_filter( 'posts_pre_query', '__return_empty_array' );
 
-	$redirect = $wp->query_vars['open-redirect'];
+	$redirect = $wp->query_vars['verified-redirect'];
 	$checksum = $wp->query_vars['pwcc-er-checksum'];
 
 	if (
@@ -124,7 +124,7 @@ function parse_request( $wp ) {
  */
 function send_headers() {
 	// Revalidate the url and checksum.
-	$redirect = get_query_var( 'open-redirect' );
+	$redirect = get_query_var( 'verified-redirect' );
 	$checksum = get_query_var( 'pwcc-er-checksum' );
 
 	if (
@@ -141,7 +141,7 @@ function send_headers() {
 	 * That allows the use of `wp_redirect()` rather than `wp_safe_redirect()`.
 	 */
 	// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
-	wp_redirect( $redirect, 302, 'Open-Redirect' );
+	wp_redirect( $redirect, 302, 'verified-redirect' );
 	if ( class_exists( '\WP_UnitTestCase' ) ) {
 		// Do not exit if running unit tests.
 		return;
@@ -194,9 +194,9 @@ function filter_the_content( $content ) {
 		// Create the redirect URL.
 		$redirect = add_query_arg(
 			array(
-				'open-redirect' => rawurlencode( $href ),
+				'verified-redirect' => rawurlencode( $href ),
 			),
-			home_url( "open-redirect/{$checksum}/" )
+			home_url( "verified-redirect/{$checksum}/" )
 		);
 
 		// Replace the link with the redirect URL.
