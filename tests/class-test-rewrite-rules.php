@@ -73,7 +73,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 
 		add_filter(
 			'query',
-			function( $query ) use ( &$post_table_queries ) {
+			function ( $query ) use ( &$post_table_queries ) {
 				global $wpdb;
 				if ( str_contains( $query, "FROM {$wpdb->posts}" ) ) {
 					$post_table_queries++;
@@ -95,7 +95,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 
 		add_filter(
 			'wp_redirect',
-			function( $location ) {
+			function ( $location ) {
 				$this->fail( "wp_redirect() was called with location: {$location}" );
 				// Prevent wp_redirect() from actually redirecting.
 				return false;
@@ -113,7 +113,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 		$actual = null;
 		add_filter(
 			'wp_redirect',
-			function( $location ) use ( &$actual ) {
+			function ( $location ) use ( &$actual ) {
 				$actual = $location;
 				// Prevent wp_redirect() from actually redirecting.
 				return false;
