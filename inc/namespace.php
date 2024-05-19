@@ -233,12 +233,23 @@ function filter_the_content( $content ) {
 
 		$checksum = create_checksum( $href );
 
+		if ( get_option( 'permalink_structure' ) ) {
+			$base_permalink = home_url( "verified-redirect/{$checksum}/" );
+		} else {
+			$base_permalink = add_query_arg(
+				array(
+					'pwcc-er-checksum' => $checksum,
+				),
+				home_url( '/' )
+			);
+		}
+
 		// Create the redirect URL.
 		$redirect = add_query_arg(
 			array(
 				'verified-redirect' => rawurlencode( $href ),
 			),
-			home_url( "verified-redirect/{$checksum}/" )
+			$base_permalink
 		);
 
 		// Replace the link with the redirect URL.
