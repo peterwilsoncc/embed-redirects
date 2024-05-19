@@ -174,6 +174,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 		$filtered_content = apply_filters( 'the_content', $content );
 
 		$this->assertStringNotContainsString( 'href="' . home_url( "/open-redirect/{$checksum}/?open-redirect=" . rawurlencode( $link ) ) . '"', $filtered_content );
+		$this->assertStringContainsString( $content, $filtered_content );
 	}
 
 	/**
