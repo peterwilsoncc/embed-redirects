@@ -22,11 +22,11 @@ function bootstrap() {
 /**
  * Activate plugin.
  *
- * Define and flush the rewrite rules during plugin activation.
+ * Flush the rewrite rules during plugin activation.
  */
 function activate_plugin() {
-	rewrite_rules();
-	flush_rewrite_rules();
+	// Runs late to ensure other plugin's rewrite rules are registered.
+	add_action( 'init', 'flush_rewrite_rules', 1024 );
 }
 
 /**
