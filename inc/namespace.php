@@ -30,6 +30,16 @@ function activate_plugin() {
 }
 
 /**
+ * Deactivate plugin.
+ *
+ * Flush the rewrite rules during plugin deactivation.
+ */
+function deactivate_plugin() {
+	// Runs late to ensure other plugin's rewrite rules are registered.
+	add_action( 'init', 'flush_rewrite_rules', 1024 );
+}
+
+/**
  * Create a checksum for a URL.
  *
  * Checksums differ from a nonce in that the same URL will always use the
