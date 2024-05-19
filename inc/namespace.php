@@ -20,6 +20,16 @@ function bootstrap() {
 }
 
 /**
+ * Activate plugin.
+ *
+ * Define and flush the rewrite rules during plugin activation.
+ */
+function activate_plugin() {
+	rewrite_rules();
+	flush_rewrite_rules();
+}
+
+/**
  * Create a checksum for a URL.
  *
  * Checksums differ from a nonce in that the same URL will always use the
