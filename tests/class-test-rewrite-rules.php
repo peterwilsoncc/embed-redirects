@@ -139,6 +139,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 
 		// Set up the conditionals so is_embed is true.
 		$this->go_to( get_post_embed_url( self::$post_id ) );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- testing WP hook.
 		$filtered_content = apply_filters( 'the_content', $content );
 
 		$this->assertStringContainsString( 'href="' . home_url( "/open-redirect/{$checksum}/?open-redirect=" . rawurlencode( $link ) ) . '"', $filtered_content );
@@ -169,6 +170,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 
 		// Set up the conditionals so is_embed is true.
 		$this->go_to( get_post_embed_url( self::$post_id ) );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- testing WP hook.
 		$filtered_content = apply_filters( 'the_content', $content );
 
 		$this->assertStringNotContainsString( 'href="' . home_url( "/open-redirect/{$checksum}/?open-redirect=" . rawurlencode( $link ) ) . '"', $filtered_content );
