@@ -14,7 +14,11 @@ use WP_UnitTest_Factory;
  * Test the rewrite rules.
  */
 class Test_Rewrite_Rules extends WP_UnitTestCase {
-
+	/**
+	 * Shared post ID.
+	 *
+	 * @var int
+	 */
 	public static $post_id;
 
 	/**
