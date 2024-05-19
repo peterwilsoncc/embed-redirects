@@ -127,6 +127,24 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Ensure plain permalinks are used for sites without rewrite rules.
+	 */
+	public function test_plain_permalink_structure() {
+		$this->set_permalink_structure( '' );
+		$link     = 'http://shuckedmusical.com/';
+		$content  = "<a href=\"{$link}\">Link</a>";
+		$checksum = \PWCC\EmbedRedirects\create_checksum( $link );
+
+		// Set up the conditionals so is_embed is true.
+		$this->go_to( get_post_embed_url( self::$post_id ) );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- testing WP hook.
+		$filtered_content = apply_filters( 'the_content', $content );
+
+		$this->assertTrue( is_embed() );
+		$this->assertStringContainsString( 'href="' . esc_url( home_url( "/?pwcc-er-checksum={$checksum}&verified-redirect=" . rawurlencode( $link ) ) ) . '"', $filtered_content );
+	}
+
+	/**
 	 * Ensure the content is updated for valid links.
 	 *
 	 * @dataProvider data_content_updated_for_valid_links
