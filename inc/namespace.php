@@ -144,6 +144,28 @@ function send_headers() {
 		return;
 	}
 
+	$default_redirect_code = 302;
+	if ( in_array( wp_get_environment_type(), array( 'production', 'staging' ), true ) ) {
+		$default_redirect_code = 301;
+	}
+
+	/**
+	 * Filter the redirect code.
+	 *
+	 * Modify the redirect code used when redirecting to the destination URL.
+	 * On production and staging environments, the default redirect code is
+	 * 301 (permanent). On other environments, the default redirect code is
+	 * 302 (temporary).
+	 *
+	 * WordPress Core includes a check to ensure the redirect code provided is
+	 * correct and will trigger a fatal error if the code is not in the range
+	 * 300-399. No validation is done by this plugin to ensure the filtered
+	 * value is within that range.
+	 *
+	 * @param int $redirect_code Default redirect code.
+	 */
+	$redirect_code = apply_filters( 'pwcc_er_redirect_code', $default_redirect_code );
+
 	/*
 	 * Redirect to the destination URL.
 	 *
@@ -151,7 +173,7 @@ function send_headers() {
 	 * That allows the use of `wp_redirect()` rather than `wp_safe_redirect()`.
 	 */
 	// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
-	wp_redirect( $redirect, 302, 'verified-redirect' );
+	wp_redirect( $redirect, $redirect_code, 'verified-redirect' );
 	if ( class_exists( '\WP_UnitTestCase' ) ) {
 		// Do not exit if running unit tests.
 		return;
@@ -171,7 +193,7 @@ function send_headers() {
  */
 function filter_the_content( $content ) {
 	// Only process content with links when viewing an embed.
-	if ( ! str_contains( $content, 'href=' ) || ! is_embed() ) {
+	if ( ! str_contains( $content, 'href=' ) ) {
 		return $content;
 	}
 
