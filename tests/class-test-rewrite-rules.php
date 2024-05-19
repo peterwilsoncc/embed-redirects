@@ -8,11 +8,24 @@
 namespace PWCC\EmbedRedirects\Tests;
 
 use WP_UnitTestCase;
+use WP_UnitTest_Factory;
 
 /**
  * Test the rewrite rules.
  */
 class Test_Rewrite_Rules extends WP_UnitTestCase {
+
+	public static $post_id;
+
+	/**
+	 * Set up shared fixture.
+	 *
+	 * @param WP_UnitTest_Factory $factory Factory object.
+	 */
+	public static function wpSetUpBeforeClass( WP_UnitTest_Factory $factory ) {
+		self::$post_id = $factory->post->create();
+	}
+
 	/**
 	 * Set up the test case.
 	 */
@@ -107,5 +120,35 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 		$checksum = \PWCC\EmbedRedirects\create_checksum( $redirect );
 		$this->go_to( "/open-redirect/{$checksum}/?open-redirect=" . rawurlencode( $redirect ) );
 		$this->assertSame( $redirect, $actual );
+	}
+
+	/**
+	 * Ensure the content is updated for valid links.
+	 *
+	 * @dataProvider data_content_updated_for_valid_links
+	 *
+	 * @param string $link Link to test.
+	 */
+	public function test_content_updated_for_valid_links( $link ) {
+		$content  = "<a href=\"{$link}\">Link</a>";
+		$checksum = \PWCC\EmbedRedirects\create_checksum( $link );
+
+		// Set up the conditionals so is_embed is true.
+		$this->go_to( get_post_embed_url( self::$post_id ) );
+		$filtered_content = apply_filters( 'the_content', $content );
+
+		$this->assertStringContainsString( 'href="' . home_url( "/open-redirect/{$checksum}/?open-redirect=" . rawurlencode( $link ) ) . '"', $filtered_content );
+	}
+
+	/**
+	 * Data provider for test_content_updated_for_valid_links.
+	 *
+	 * @return array[]
+	 */
+	public function data_content_updated_for_valid_links() {
+		return array(
+			array( 'http://example.org/' ),
+			array( 'https://example.org/' ),
+		);
 	}
 }
