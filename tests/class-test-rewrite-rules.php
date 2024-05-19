@@ -107,6 +107,26 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Ensure the custom endpoint does not redirect if the checksum is invalid using plain permalink.
+	 */
+	public function test_custom_endpoint_does_not_redirect_if_checksum_invalid_using_plain_permalink() {
+		$filter = new \MockAction();
+		add_filter( 'wp_redirect', array( $filter, 'filter' ) );
+
+		add_filter(
+			'wp_redirect',
+			function ( $location ) {
+				$this->fail( "wp_redirect() was called with location: {$location}" );
+				// Prevent wp_redirect() from actually redirecting.
+				return false;
+			}
+		);
+
+		$this->go_to( '/?pwcc-er-checksum=1234567890&verified-redirect=http%3A%2F%2Fshuckedmusical.com%2F' );
+		$this->assertSame( 0, $filter->get_call_count() );
+	}
+
+	/**
 	 * Ensure the custom endpoint redirects if the checksum is valid.
 	 */
 	public function test_custom_endpoint_redirects_if_checksum_valid() {
