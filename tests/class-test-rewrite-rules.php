@@ -142,6 +142,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- testing WP hook.
 		$filtered_content = apply_filters( 'the_content', $content );
 
+		$this->assertTrue( is_embed() );
 		$this->assertStringContainsString( 'href="' . home_url( "/open-redirect/{$checksum}/?open-redirect=" . rawurlencode( $link ) ) . '"', $filtered_content );
 	}
 
@@ -173,6 +174,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- testing WP hook.
 		$filtered_content = apply_filters( 'the_content', $content );
 
+		$this->assertTrue( is_embed() );
 		$this->assertStringNotContainsString( 'href="' . home_url( "/open-redirect/{$checksum}/?open-redirect=" . rawurlencode( $link ) ) . '"', $filtered_content );
 		$this->assertStringContainsString( $content, $filtered_content );
 	}
@@ -215,6 +217,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- testing WP hook.
 		$filtered_content = apply_filters( 'the_content', $content );
 
+		$this->assertTrue( is_embed() );
 		$this->assertStringNotContainsString( 'href="' . home_url( "/open-redirect/{$checksum}/?open-redirect=" . rawurlencode( $link ) ) . '"', $filtered_content );
 		$this->assertStringContainsString( $content, $filtered_content );
 	}
@@ -242,6 +245,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- testing WP hook.
 		$filtered_content = apply_filters( 'the_content', $content );
 
+		$this->assertTrue( is_embed() );
 		$this->assertStringNotContainsString( 'href="' . home_url( '/open-redirect/' ), $filtered_content );
 		$this->assertStringContainsString( $content, $filtered_content );
 	}
