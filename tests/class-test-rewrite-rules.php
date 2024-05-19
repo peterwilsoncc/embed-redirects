@@ -197,6 +197,39 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 		);
 	}
 
+
+	/**
+	 * Ensure the content is not updated for local/site links.
+	 *
+	 * @dataProvider data_content_is_not_updated_for_local_urls
+	 *
+	 * @param string $link Link to test.
+	 */
+	public function test_content_is_not_updated_for_local_urls( $link ) {
+		$content  = "<a href=\"{$link}\">Link</a>";
+		$checksum = \PWCC\EmbedRedirects\create_checksum( $link );
+
+		// Set up the conditionals so is_embed is true.
+		$this->go_to( get_post_embed_url( self::$post_id ) );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- testing WP hook.
+		$filtered_content = apply_filters( 'the_content', $content );
+
+		$this->assertStringNotContainsString( 'href="' . home_url( "/open-redirect/{$checksum}/?open-redirect=" . rawurlencode( $link ) ) . '"', $filtered_content );
+		$this->assertStringContainsString( $content, $filtered_content );
+	}
+
+	/**
+	 * Data provider for test_content_is_not_updated_for_local_urls.
+	 *
+	 * @return array[]
+	 */
+	public function data_content_is_not_updated_for_local_urls() {
+		return array(
+			'http URL'  => array( set_url_scheme( home_url( '/example/' ), 'http' ) ),
+			'https URL' => array( set_url_scheme( home_url( '/example/' ), 'https' ) ),
+		);
+	}
+
 	/**
 	 * Ensure the content is not changed for an empty href attribute.
 	 */
