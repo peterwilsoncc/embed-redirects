@@ -40,20 +40,40 @@ function deactivate_plugin() {
 }
 
 /**
+ * Get the salt for hashing the URL.
+ *
+ * If a salt is not set, generate a new one and store it in the options table.
+ *
+ * A custom salt is used as the WordPress nonce salt is documented as being
+ * suitable for site administrators to change at will. Modifying the salt used
+ * for URL redirects will break any existing links that may have been shared
+ * or bookmarked.
+ *
+ * @return string Salt.
+ */
+function checksum_salt() {
+	$salt = get_option( 'pwcc-er-checksum-salt' );
+
+	if ( ! $salt ) {
+		$salt = wp_generate_password( 64, true, true );
+		update_option( 'pwcc-er-checksum-salt', $salt, 'no' );
+	}
+
+	return $salt;
+}
+
+/**
  * Create a checksum for a URL.
  *
  * Checksums differ from a nonce in that the same URL will always use the
  * same value, regardless of the user. The purpose of the checksum is to
  * validate that the URL is safe to redirect to.
  *
- * For the purpose of hashing, the `nonce` scheme is used as it's the
- * best match for the purpose.
- *
  * @param string $url Destination URL.
  * @return string Checksum.
  */
 function create_checksum( $url ) {
-	return wp_hash( $url, 'nonce' );
+	return hash_hmac( 'sha1', $url, checksum_salt() );
 }
 
 /**
