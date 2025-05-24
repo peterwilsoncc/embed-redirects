@@ -222,8 +222,24 @@ function send_headers() {
  * @return string Updated post content.
  */
 function filter_the_content( $content ) {
-	// Only process content with links when viewing an embed.
+	// Only process content containing links.
 	if ( ! str_contains( $content, 'href=' ) ) {
+		return $content;
+	}
+
+	// Only process content on embeds.
+	if (
+		/**
+		 * Filters whether the content should use link redirects.
+		 *
+		 * On embeds, the default is true and external links are replaced
+		 * with redirects. On other pages, the default is false and
+		 * external links are not replaced with redirects.
+		 *
+		 * @param bool $use_redirects Whether to use link redirects. Default is_embed().
+		 */
+		! apply_filters( 'pwcc_er_use_link_redirects', is_embed() )
+	) {
 		return $content;
 	}
 
