@@ -128,8 +128,12 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 
 	/**
 	 * Ensure the custom endpoint redirects if the checksum is valid.
+	 *
+	 * @dataProvider data_custom_endpoint_redirects_if_checksum_valid
+	 *
+	 * @param string $redirect Redirect URL.
 	 */
-	public function test_custom_endpoint_redirects_if_checksum_valid() {
+	public function test_custom_endpoint_redirects_if_checksum_valid( $redirect ) {
 		$actual = null;
 		add_filter(
 			'wp_redirect',
@@ -140,7 +144,6 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 			}
 		);
 
-		$redirect = 'https://shuckedmusical.com/';
 		$checksum = \PWCC\EmbedRedirects\create_checksum( $redirect );
 		$this->go_to( "/verified-redirect/{$checksum}/?verified-redirect=" . rawurlencode( $redirect ) );
 		$this->assertSame( $redirect, $actual );
@@ -148,8 +151,12 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 
 	/**
 	 * Ensure the custom endpoint redirects if the checksum is valid using plain permalink.
+	 *
+	 * @dataProvider data_custom_endpoint_redirects_if_checksum_valid
+	 *
+	 * @param string $redirect Redirect URL.
 	 */
-	public function test_custom_endpoint_redirects_if_checksum_valid_using_plain_permalink() {
+	public function test_custom_endpoint_redirects_if_checksum_valid_using_plain_permalink( $redirect ) {
 		$actual = null;
 		add_filter(
 			'wp_redirect',
@@ -160,10 +167,29 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 			}
 		);
 
-		$redirect = 'https://shuckedmusical.com/';
 		$checksum = \PWCC\EmbedRedirects\create_checksum( $redirect );
 		$this->go_to( "?pwcc-er-checksum={$checksum}&verified-redirect=" . rawurlencode( $redirect ) );
 		$this->assertSame( $redirect, $actual );
+	}
+
+	/**
+	 * Data provider for:
+	 *  - test_custom_endpoint_redirects_if_checksum_valid
+	 *  - test_custom_endpoint_redirects_if_checksum_valid_using_plain_permalink
+	 *
+	 * @return array[]
+	 */
+	public function data_custom_endpoint_redirects_if_checksum_valid() {
+		return array(
+			'domain' => array( 'https://shuckedmusical.com/' ),
+			'path'   => array( 'https://shuckedmusical.com/path/to/resource' ),
+			'query'  => array( 'https://shuckedmusical.com/path/to/resource?query=string' ),
+			'fragment' => array( 'https://shuckedmusical.com/path/to/resource#fragment' ),
+			'query and fragment' => array( 'https://shuckedmusical.com/path/to/resource?query=string#fragment' ),
+			'muliple queries' => array( 'https://shuckedmusical.com/path/to/resource?query=string&another=query' ),
+			'encoded' => array( 'https://shuckedmusical.com/path/to/resource?query=string%20with%20spaces' ),
+			'encoded fragment' => array( 'https://shuckedmusical.com/path/to/resource#fragment%20with%20spaces' ),
+		);
 	}
 
 	/**
