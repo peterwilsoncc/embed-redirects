@@ -181,14 +181,14 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	 */
 	public function data_custom_endpoint_redirects_if_checksum_valid() {
 		return array(
-			'domain' => array( 'https://shuckedmusical.com/' ),
-			'path'   => array( 'https://shuckedmusical.com/path/to/resource' ),
-			'query'  => array( 'https://shuckedmusical.com/path/to/resource?query=string' ),
-			'fragment' => array( 'https://shuckedmusical.com/path/to/resource#fragment' ),
+			'domain'             => array( 'https://shuckedmusical.com/' ),
+			'path'               => array( 'https://shuckedmusical.com/path/to/resource' ),
+			'query'              => array( 'https://shuckedmusical.com/path/to/resource?query=string' ),
+			'fragment'           => array( 'https://shuckedmusical.com/path/to/resource#fragment' ),
 			'query and fragment' => array( 'https://shuckedmusical.com/path/to/resource?query=string#fragment' ),
-			'muliple queries' => array( 'https://shuckedmusical.com/path/to/resource?query=string&another=query' ),
-			'encoded' => array( 'https://shuckedmusical.com/path/to/resource?query=string%20with%20spaces' ),
-			'encoded fragment' => array( 'https://shuckedmusical.com/path/to/resource#fragment%20with%20spaces' ),
+			'muliple queries'    => array( 'https://shuckedmusical.com/path/to/resource?query=string&another=query' ),
+			'encoded'            => array( 'https://shuckedmusical.com/path/to/resource?query=string%20with%20spaces' ),
+			'encoded fragment'   => array( 'https://shuckedmusical.com/path/to/resource#fragment%20with%20spaces' ),
 		);
 	}
 
