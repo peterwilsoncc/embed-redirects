@@ -123,6 +123,29 @@ function rewrite_rules() {
 }
 
 /**
+ * Validate a redirect.
+ *
+ * Ensure the redirect is a valid URL and that the checksum is valid.
+ *
+ * @param string $redirect Destination URL.
+ * @param string $checksum Checksum to validate.
+ * @return bool True if the redirect is valid, false otherwise.
+ */
+function is_valid_redirect( $redirect, $checksum ) {
+	// Ensure the redirect is a valid URL.
+	if ( ! sanitize_url( $redirect ) === $redirect ) {
+		return false;
+	}
+
+	// Validate the checksum.
+	if ( ! validate_checksum( $redirect, $checksum ) ) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
  * Parse the request.
  *
  * If the request is for a redirect, validate the checksum and throw
@@ -151,10 +174,7 @@ function parse_request( $wp ) {
 	$redirect = $wp->query_vars['verified-redirect'];
 	$checksum = $wp->query_vars['pwcc-er-checksum'];
 
-	if (
-		! sanitize_url( $redirect ) === $redirect
-		|| ! validate_checksum( $redirect, $checksum )
-	) {
+	if ( ! is_valid_redirect( $redirect, $checksum ) ) {
 		$wp->query_vars['error'] = '404';
 		return;
 	}
@@ -170,10 +190,7 @@ function send_headers() {
 	$redirect = get_query_var( 'verified-redirect' );
 	$checksum = get_query_var( 'pwcc-er-checksum' );
 
-	if (
-		! sanitize_url( $redirect ) === $redirect
-		|| ! validate_checksum( $redirect, $checksum )
-	) {
+	if ( ! is_valid_redirect( $redirect, $checksum ) ) {
 		return;
 	}
 
