@@ -73,7 +73,10 @@ function checksum_salt() {
  * @return string Checksum.
  */
 function create_checksum( $url ) {
-	return hash_hmac( 'sha1', $url, checksum_salt() );
+	$checksum = hash_hmac( 'sha1', $url, checksum_salt() );
+	$checksum = substr( $checksum, 0, 10 );
+	$checksum = strtolower( $checksum );
+	return $checksum;
 }
 
 /**
