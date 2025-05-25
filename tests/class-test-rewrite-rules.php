@@ -177,7 +177,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	 *  - test_custom_endpoint_redirects_if_checksum_valid
 	 *  - test_custom_endpoint_redirects_if_checksum_valid_using_plain_permalink
 	 *
-	 * @return array[]
+	 * @return array[] Data provider.
 	 */
 	public function data_custom_endpoint_redirects_if_checksum_valid() {
 		return array(
@@ -233,7 +233,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	/**
 	 * Data provider for test_content_updated_for_valid_links.
 	 *
-	 * @return array[]
+	 * @return array[] Data provider.
 	 */
 	public function data_content_updated_for_valid_links() {
 		return array(
@@ -272,7 +272,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	/**
 	 * Data provider for test_content_is_not_updated_for_invalid_links.
 	 *
-	 * @return array[]
+	 * @return array[] Data provider.
 	 */
 	public function data_content_is_not_updated_for_invalid_links() {
 		return array(
@@ -315,7 +315,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	/**
 	 * Data provider for test_content_is_not_updated_for_local_urls.
 	 *
-	 * @return array[]
+	 * @return array[] Data provider.
 	 */
 	public function data_content_is_not_updated_for_local_urls() {
 		return array(
