@@ -112,8 +112,8 @@ function rewrite_rules() {
 	add_rewrite_tag( '%pwcc-er-checksum%', '([^&]+)', 'pwcc-er-checksum=' );
 
 	add_rewrite_rule(
-		'^verified-redirect/([0-9a-zA-Z]+?)/?$',
-		'index.php?pwcc-er-checksum=$matches[1]',
+		'^verified-redirect/([0-9a-zA-Z]+?)/(.*)$',
+		'index.php?pwcc-er-checksum=$matches[1]&verified-redirect=$matches[2]',
 		'top'
 	);
 
@@ -288,25 +288,19 @@ function filter_the_content( $content ) {
 		}
 
 		$checksum = create_checksum( $href );
+		$url      = rawurlencode( $href );
 
 		if ( get_option( 'permalink_structure' ) ) {
-			$base_permalink = home_url( "verified-redirect/{$checksum}/" );
+			$redirect = home_url( "verified-redirect/{$checksum}/$href" );
 		} else {
-			$base_permalink = add_query_arg(
+			$redirect = add_query_arg(
 				array(
 					'pwcc-er-checksum' => $checksum,
+					'verified-redirect' => $url,
 				),
 				home_url( '/' )
 			);
 		}
-
-		// Create the redirect URL.
-		$redirect = add_query_arg(
-			array(
-				'verified-redirect' => rawurlencode( $href ),
-			),
-			$base_permalink
-		);
 
 		// Replace the link with the redirect URL.
 		$dom->set_attribute( 'href', esc_url( $redirect ) );
