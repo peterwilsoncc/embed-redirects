@@ -35,9 +35,25 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
+		delete_option( 'pwcc-er-checksum-salt' );
 		$this->set_permalink_structure( '/%year%/%monthnum%/%postname%/' );
 		// Rewrite rules appear to be part of the default tear down.
 		\PWCC\EmbedRedirects\rewrite_rules();
+	}
+
+	/**
+	 * Ensure the checksum is actually salted.
+	 */
+	public function test_checksum_is_salted() {
+		$url = 'https://shuckedmusical.com/';
+		update_option( 'pwcc-er-checksum-salt', '1', 'no' );
+
+		$checksum_1 = \PWCC\EmbedRedirects\create_checksum( $url );
+
+		update_option( 'pwcc-er-checksum-salt', '2', 'no' );
+		$checksum_2 = \PWCC\EmbedRedirects\create_checksum( $url );
+
+		$this->assertNotSame( $checksum_1, $checksum_2, 'Checksum should change when salt changes.' );
 	}
 
 	/**
