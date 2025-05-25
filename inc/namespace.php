@@ -174,6 +174,17 @@ function parse_request( $wp ) {
 	$redirect = $wp->query_vars['verified-redirect'];
 	$checksum = $wp->query_vars['pwcc-er-checksum'];
 
+	if ( get_option( 'permalink_structure' ) ) {
+		/*
+		 * Decode the URL for use in the redirect.
+		 *
+		 * For some reason the `$wp->query_vars['verified-redirect']` value is
+		 * not decoded when using pretty permalinks but it is when using
+		 * plain permalinks.
+		 */
+		$redirect = rawurldecode( $redirect );
+	}
+
 	if ( ! is_valid_redirect( $redirect, $checksum ) ) {
 		$wp->query_vars['error'] = '404';
 		return;
@@ -189,6 +200,17 @@ function send_headers() {
 	// Revalidate the url and checksum.
 	$redirect = get_query_var( 'verified-redirect' );
 	$checksum = get_query_var( 'pwcc-er-checksum' );
+
+	if ( get_option( 'permalink_structure' ) ) {
+		/*
+		 * Decode the URL for use in the redirect.
+		 *
+		 * For some reason the `$wp->query_vars['verified-redirect']` value is
+		 * not decoded when using pretty permalinks but it is when using
+		 * plain permalinks.
+		 */
+		$redirect = rawurldecode( $redirect );
+	}
 
 	if ( ! is_valid_redirect( $redirect, $checksum ) ) {
 		return;
@@ -300,11 +322,11 @@ function filter_the_content( $content ) {
 		$url = rawurlencode( $href );
 
 		if ( get_option( 'permalink_structure' ) ) {
-			$redirect = home_url( "verified-redirect/{$checksum}/$href" );
+			$redirect = home_url( "verified-redirect/{$checksum}/$url" );
 		} else {
 			$redirect = add_query_arg(
 				array(
-					'pwcc-er-checksum' => $checksum,
+					'pwcc-er-checksum'  => $checksum,
 					'verified-redirect' => $url,
 				),
 				home_url( '/' )
