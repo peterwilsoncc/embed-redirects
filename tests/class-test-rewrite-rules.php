@@ -339,4 +339,43 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( 'href="' . home_url( '/verified-redirect/' ), $filtered_content );
 		$this->assertStringContainsString( $content, $filtered_content );
 	}
+
+	/**
+	 * Ensure the content is not changed for non-embed views.
+	 *
+	 * @dataProvider data_content_not_changed_for_non_embeds
+	 *
+	 * @param string $go_to The URL to go to.
+	 */
+	public function test_content_not_changed_for_non_embeds( $go_to ) {
+		$content = '<a href="https://shuckedmusical.com/">Link</a>';
+
+		// This is not available in the data provider is is replaced here.
+		$go_to = str_replace( '%%POST_ID%%', self::$post_id, $go_to );
+
+		// Set up the conditionals so is_embed is false.
+		$this->go_to( home_url( $go_to ) );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- testing WP hook.
+		$filtered_content = apply_filters( 'the_content', $content );
+
+		$this->assertFalse( is_embed() );
+		$this->assertStringNotContainsString( 'href="' . home_url( '/verified-redirect/' ), $filtered_content );
+		$this->assertStringContainsString( $content, $filtered_content );
+	}
+
+	/**
+	 * Data provider for test_content_not_changed_for_non_embeds.
+	 *
+	 * @return array[] Data provider.
+	 */
+	public function data_content_not_changed_for_non_embeds() {
+		return array(
+			'Home page'           => array( '/' ),
+			'Single post'         => array( '/?p=%%POST_ID%%' ),
+			'Archive page'        => array( '/category/uncategorized/' ),
+			'Search results'      => array( '/?s=shucked' ),
+			'404 page'            => array( '/404-file-not-found/' ),
+			'Author archive page' => array( '/author/admin/' ),
+		);
+	}
 }
