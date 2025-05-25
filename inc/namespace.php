@@ -125,7 +125,7 @@ function rewrite_rules() {
 /**
  * Parse the request.
  *
- * If the request is for an open redirect, validate the checksum and throw
+ * If the request is for a redirect, validate the checksum and throw
  * a 404 error if it is invalid.
  *
  * If the checksum is valid, redirect on the send_headers action.
