@@ -133,7 +133,7 @@ function rewrite_rules() {
  */
 function is_valid_redirect( $redirect, $checksum ) {
 	// Ensure the redirect is a valid URL.
-	if ( ! sanitize_url( $redirect ) === $redirect ) {
+	if ( sanitize_url( $redirect ) !== $redirect ) {
 		return false;
 	}
 
