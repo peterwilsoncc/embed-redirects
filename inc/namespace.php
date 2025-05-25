@@ -288,7 +288,16 @@ function filter_the_content( $content ) {
 		}
 
 		$checksum = create_checksum( $href );
-		$url      = rawurlencode( $href );
+
+		/*
+		 * Encode the URL for use in the redirect.
+		 *
+		 * `esc_url()` is not used for this as the entire URL is
+		 * used as a query string parameter and `esc_url()` will
+		 * not encode slashes and certain other characters for
+		 * the required use case.
+		 */
+		$url = rawurlencode( $href );
 
 		if ( get_option( 'permalink_structure' ) ) {
 			$redirect = home_url( "verified-redirect/{$checksum}/$href" );
