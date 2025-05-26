@@ -98,7 +98,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 			}
 		);
 
-		$this->go_to( '/verified-redirect/1234567890/http%3A%2F%2Fshuckedmusical.com%2F' );
+		$this->go_to( home_url( '/verified-redirect/1234567890/http%3A%2F%2Fshuckedmusical.com%2F' ) );
 		$this->assertSame( 0, $post_table_queries );
 	}
 
@@ -118,7 +118,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 			}
 		);
 
-		$this->go_to( '/verified-redirect/1234567890/http%3A%2F%2Fshuckedmusical.com%2F' );
+		$this->go_to( home_url( '/verified-redirect/1234567890/http%3A%2F%2Fshuckedmusical.com%2F' ) );
 		$this->assertSame( 0, $filter->get_call_count() );
 	}
 
@@ -139,7 +139,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 			}
 		);
 
-		$this->go_to( '/?pwcc-er-checksum=1234567890&verified-redirect=http%3A%2F%2Fshuckedmusical.com%2F' );
+		$this->go_to( home_url( '/?pwcc-er-checksum=1234567890&verified-redirect=http%3A%2F%2Fshuckedmusical.com%2F' ) );
 		$this->assertSame( 0, $filter->get_call_count() );
 	}
 
@@ -162,7 +162,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 		);
 
 		$checksum = \PWCC\EmbedRedirects\create_checksum( $redirect );
-		$this->go_to( "/verified-redirect/{$checksum}/" . rawurlencode( $redirect ) );
+		$this->go_to( home_url( "/verified-redirect/{$checksum}/" . rawurlencode( $redirect ) ) );
 		$this->assertSame( $redirect, $actual );
 	}
 
@@ -186,7 +186,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 		);
 
 		$checksum = \PWCC\EmbedRedirects\create_checksum( $redirect );
-		$this->go_to( "?pwcc-er-checksum={$checksum}&verified-redirect=" . rawurlencode( $redirect ) );
+		$this->go_to( home_url( "?pwcc-er-checksum={$checksum}&verified-redirect=" . rawurlencode( $redirect ) ) );
 		$this->assertSame( $redirect, $actual );
 	}
 
