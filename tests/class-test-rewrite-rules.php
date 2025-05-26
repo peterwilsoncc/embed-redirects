@@ -45,7 +45,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	 * Ensure the checksum is actually salted.
 	 */
 	public function test_checksum_is_salted() {
-		$url = 'https://shuckedmusical.com/';
+		$url = 'https://example.com/';
 		update_option( 'pwcc-er-checksum-salt', '1', 'no' );
 
 		$checksum_1 = \PWCC\EmbedRedirects\create_checksum( $url );
@@ -98,7 +98,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 			}
 		);
 
-		$this->go_to( home_url( '/verified-redirect/1234567890/http%3A%2F%2Fshuckedmusical.com%2F' ) );
+		$this->go_to( home_url( '/verified-redirect/1234567890/http%3A%2F%2Fexample.com%2F' ) );
 		$this->assertSame( 0, $post_table_queries );
 	}
 
@@ -118,7 +118,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 			}
 		);
 
-		$this->go_to( home_url( '/verified-redirect/1234567890/http%3A%2F%2Fshuckedmusical.com%2F' ) );
+		$this->go_to( home_url( '/verified-redirect/1234567890/http%3A%2F%2Fexample.com%2F' ) );
 		$this->assertSame( 0, $filter->get_call_count() );
 	}
 
@@ -139,7 +139,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 			}
 		);
 
-		$this->go_to( home_url( '/?pwcc-er-checksum=1234567890&verified-redirect=http%3A%2F%2Fshuckedmusical.com%2F' ) );
+		$this->go_to( home_url( '/?pwcc-er-checksum=1234567890&verified-redirect=http%3A%2F%2Fexample.com%2F' ) );
 		$this->assertSame( 0, $filter->get_call_count() );
 	}
 
@@ -266,14 +266,14 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	 */
 	public function data_various_url_formats() {
 		return array(
-			'domain'             => array( 'https://shuckedmusical.com/' ),
-			'path'               => array( 'https://shuckedmusical.com/path/to/resource' ),
-			'query'              => array( 'https://shuckedmusical.com/path/to/resource?query=string' ),
-			'fragment'           => array( 'https://shuckedmusical.com/path/to/resource#fragment' ),
-			'query and fragment' => array( 'https://shuckedmusical.com/path/to/resource?query=string#fragment' ),
-			'multiple queries'   => array( 'https://shuckedmusical.com/path/to/resource?query=string&another=query' ),
-			'encoded'            => array( 'https://shuckedmusical.com/path/to/resource?query=string%20with%20spaces' ),
-			'encoded fragment'   => array( 'https://shuckedmusical.com/path/to/resource#fragment%20with%20spaces' ),
+			'domain'             => array( 'https://example.com/' ),
+			'path'               => array( 'https://example.com/path/to/resource' ),
+			'query'              => array( 'https://example.com/path/to/resource?query=string' ),
+			'fragment'           => array( 'https://example.com/path/to/resource#fragment' ),
+			'query and fragment' => array( 'https://example.com/path/to/resource?query=string#fragment' ),
+			'multiple queries'   => array( 'https://example.com/path/to/resource?query=string&another=query' ),
+			'encoded'            => array( 'https://example.com/path/to/resource?query=string%20with%20spaces' ),
+			'encoded fragment'   => array( 'https://example.com/path/to/resource#fragment%20with%20spaces' ),
 		);
 	}
 
@@ -305,9 +305,9 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	 */
 	public function data_content_is_not_updated_for_invalid_links() {
 		return array(
-			'No scheme'         => array( 'shuckedmusical.com/' ),
-			'FTP URL'           => array( 'ftp://shuckedmusical.com/' ),
-			'Mailto URL'        => array( 'mailto:bounce@shuckedmusical.com' ),
+			'No scheme'         => array( 'example.com/' ),
+			'FTP URL'           => array( 'ftp://example.com/' ),
+			'Mailto URL'        => array( 'mailto:bounce@example.com' ),
 			'JavaScript URL'    => array( 'javascript:alert("Hello, World!");' ),
 			'Telephone URL'     => array( 'tel:+1234567890' ),
 			'Data URL'          => array( 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==' ),
@@ -377,7 +377,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	 * @param string $go_to The URL to go to.
 	 */
 	public function test_content_not_changed_for_non_embeds( $go_to ) {
-		$content = '<a href="https://shuckedmusical.com/">Link</a>';
+		$content = '<a href="https://example.com/">Link</a>';
 
 		// This is not available in the data provider is is replaced here.
 		$go_to = str_replace( '%%POST_ID%%', self::$post_id, $go_to );
