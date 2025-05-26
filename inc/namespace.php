@@ -165,13 +165,12 @@ function get_redirect_url_from_query() {
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- front end query var.
 	if ( isset( $_GET['verified-redirect'] ) ) {
-		// Ignored as this is compared with sanitized input for validation.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		return wp_unslash( $_GET['verified-redirect'] );
+		// When using plain links, this value is decoded by WP.
+		return $wp->query_vars['verified-redirect'];
 	}
 
-	// Request is using pretty permalinks and needs to be decoded.
 	if ( isset( $wp->query_vars['verified-redirect'] ) ) {
+		// When using pretty permalinks, this value is not decoded by WP ¯\_(ツ)_/¯.
 		return rawurldecode( $wp->query_vars['verified-redirect'] );
 	}
 
