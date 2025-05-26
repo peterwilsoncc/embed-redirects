@@ -150,7 +150,7 @@ function is_valid_redirect( $redirect, $checksum ) {
 }
 
 /**
- * Get the redirect URL from the query.
+ * Get the redirect URL from the request.
  *
  * This retrieves the redirect URL from the query variable or request
  * parameter. It handles both pretty permalinks and query string URLs.
@@ -160,7 +160,7 @@ function is_valid_redirect( $redirect, $checksum ) {
  *
  * @return string|false Redirect URL or null if not retrieved.
  */
-function get_redirect_url_from_query() {
+function get_redirect_url_from_request() {
 	global $wp;
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- front end query var.
@@ -203,7 +203,7 @@ function parse_request( $wp ) {
 	 */
 	add_filter( 'posts_pre_query', '__return_empty_array' );
 
-	$redirect = get_redirect_url_from_query();
+	$redirect = get_redirect_url_from_request();
 	$checksum = $wp->query_vars['pwcc-er-checksum'];
 
 	if ( ! is_valid_redirect( $redirect, $checksum ) ) {
@@ -219,7 +219,7 @@ function parse_request( $wp ) {
  */
 function send_headers() {
 	// Revalidate the url and checksum.
-	$redirect = get_redirect_url_from_query();
+	$redirect = get_redirect_url_from_request();
 	$checksum = get_query_var( 'pwcc-er-checksum' );
 
 	if ( ! is_valid_redirect( $redirect, $checksum ) ) {
