@@ -266,14 +266,21 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	 */
 	public function data_various_url_formats() {
 		return array(
-			'domain'             => array( 'https://example.com/' ),
-			'path'               => array( 'https://example.com/path/to/resource' ),
-			'query'              => array( 'https://example.com/path/to/resource?query=string' ),
-			'fragment'           => array( 'https://example.com/path/to/resource#fragment' ),
-			'query and fragment' => array( 'https://example.com/path/to/resource?query=string#fragment' ),
-			'multiple queries'   => array( 'https://example.com/path/to/resource?query=string&another=query' ),
-			'encoded'            => array( 'https://example.com/path/to/resource?query=string%20with%20spaces' ),
-			'encoded fragment'   => array( 'https://example.com/path/to/resource#fragment%20with%20spaces' ),
+			'domain'                => array( 'https://example.com/' ),
+			'path'                  => array( 'https://example.com/path/to/resource' ),
+			'query'                 => array( 'https://example.com/path/to/resource?query=string' ),
+			'fragment'              => array( 'https://example.com/path/to/resource#fragment' ),
+			'query and fragment'    => array( 'https://example.com/path/to/resource?query=string#fragment' ),
+			'multiple queries'      => array( 'https://example.com/path/to/resource?query=string&another=query' ),
+			'encoded'               => array( 'https://example.com/path/to/resource?query=string%20with%20spaces' ),
+			'encoded fragment'      => array( 'https://example.com/path/to/resource#fragment%20with%20spaces' ),
+			'emoji'                 => array( 'https://example.com/path/to/😊' ),
+			'custom port'           => array( 'https://example.com:8080/path/to/resource' ),
+			'subdomain'             => array( 'https://subdomain.example.com/path/to/resource' ),
+			'IP address'            => array( 'https://192.168.0.15/path/to/resource' ),
+			'IPv6 address'          => array( 'https://[fdf8:f53b:82e4::53]/path/to/resource' ),
+			'hyphenated sub domain' => array( 'https://sub-domain.example.com/path/to/resource' ),
+			'special characters'    => array( 'https://테스트.example.com/' ),
 		);
 	}
 
