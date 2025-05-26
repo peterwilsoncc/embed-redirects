@@ -191,6 +191,29 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Ensure the custom endpoint redirects if the checksum is valid using plain permalink on sites with pretty links.
+	 *
+	 * @dataProvider data_custom_endpoint_redirects_if_checksum_valid
+	 *
+	 * @param string $redirect Redirect URL.
+	 */
+	public function test_custom_endpoint_redirects_if_checksum_valid_using_plain_permalink_on_site_with_pretty_links( $redirect ) {
+		$actual = null;
+		add_filter(
+			'wp_redirect',
+			function ( $location ) use ( &$actual ) {
+				$actual = $location;
+				// Prevent wp_redirect() from actually redirecting.
+				return false;
+			}
+		);
+
+		$checksum = \PWCC\EmbedRedirects\create_checksum( $redirect );
+		$this->go_to( home_url( "?pwcc-er-checksum={$checksum}&verified-redirect=" . rawurlencode( $redirect ) ) );
+		$this->assertSame( $redirect, $actual );
+	}
+
+	/**
 	 * Data provider for:
 	 *  - test_custom_endpoint_redirects_if_checksum_valid
 	 *  - test_custom_endpoint_redirects_if_checksum_valid_using_plain_permalink

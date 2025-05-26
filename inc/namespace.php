@@ -132,6 +132,10 @@ function rewrite_rules() {
  * @return bool True if the redirect is valid, false otherwise.
  */
 function is_valid_redirect( $redirect, $checksum ) {
+	if ( ! is_string( $redirect ) || ! is_string( $checksum ) || ! $redirect || ! $checksum ) {
+		return false;
+	}
+
 	// Ensure the redirect is a valid URL.
 	if ( sanitize_url( $redirect ) !== $redirect ) {
 		return false;
@@ -143,6 +147,35 @@ function is_valid_redirect( $redirect, $checksum ) {
 	}
 
 	return true;
+}
+
+/**
+ * Get the redirect URL from the query.
+ *
+ * This retrieves the redirect URL from the query variable or request
+ * parameter. It handles both pretty permalinks and query string URLs.
+ *
+ * WP handles the encoding slightly differently depending on the
+ * permalink structure.
+ *
+ * @return string|false Redirect URL or null if not retrieved.
+ */
+function get_redirect_url_from_query() {
+	global $wp;
+
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- front end query var.
+	if ( isset( $_GET['verified-redirect'] ) ) {
+		// Ignored as this is compared with sanitized input for validation.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		return wp_unslash( $_GET['verified-redirect'] );
+	}
+
+	// Request is using pretty permalinks and needs to be decoded.
+	if ( isset( $wp->query_vars['verified-redirect'] ) ) {
+		return rawurldecode( $wp->query_vars['verified-redirect'] );
+	}
+
+	return false;
 }
 
 /**
@@ -171,19 +204,8 @@ function parse_request( $wp ) {
 	 */
 	add_filter( 'posts_pre_query', '__return_empty_array' );
 
-	$redirect = $wp->query_vars['verified-redirect'];
+	$redirect = get_redirect_url_from_query();
 	$checksum = $wp->query_vars['pwcc-er-checksum'];
-
-	if ( get_option( 'permalink_structure' ) ) {
-		/*
-		 * Decode the URL for use in the redirect.
-		 *
-		 * For some reason the `$wp->query_vars['verified-redirect']` value is
-		 * not decoded when using pretty permalinks but it is when using
-		 * plain permalinks.
-		 */
-		$redirect = rawurldecode( $redirect );
-	}
 
 	if ( ! is_valid_redirect( $redirect, $checksum ) ) {
 		$wp->query_vars['error'] = '404';
@@ -198,19 +220,8 @@ function parse_request( $wp ) {
  */
 function send_headers() {
 	// Revalidate the url and checksum.
-	$redirect = get_query_var( 'verified-redirect' );
+	$redirect = get_redirect_url_from_query();
 	$checksum = get_query_var( 'pwcc-er-checksum' );
-
-	if ( get_option( 'permalink_structure' ) ) {
-		/*
-		 * Decode the URL for use in the redirect.
-		 *
-		 * For some reason the `$wp->query_vars['verified-redirect']` value is
-		 * not decoded when using pretty permalinks but it is when using
-		 * plain permalinks.
-		 */
-		$redirect = rawurldecode( $redirect );
-	}
 
 	if ( ! is_valid_redirect( $redirect, $checksum ) ) {
 		return;
