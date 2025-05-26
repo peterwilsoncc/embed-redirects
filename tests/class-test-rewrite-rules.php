@@ -146,7 +146,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	/**
 	 * Ensure the custom endpoint redirects if the checksum is valid.
 	 *
-	 * @dataProvider data_custom_endpoint_redirects_if_checksum_valid
+	 * @dataProvider data_various_url_formats
 	 *
 	 * @param string $redirect Redirect URL.
 	 */
@@ -169,7 +169,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	/**
 	 * Ensure the custom endpoint redirects if the checksum is valid using plain permalink.
 	 *
-	 * @dataProvider data_custom_endpoint_redirects_if_checksum_valid
+	 * @dataProvider data_various_url_formats
 	 *
 	 * @param string $redirect Redirect URL.
 	 */
@@ -193,7 +193,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	/**
 	 * Ensure the custom endpoint redirects if the checksum is valid using plain permalink on sites with pretty links.
 	 *
-	 * @dataProvider data_custom_endpoint_redirects_if_checksum_valid
+	 * @dataProvider data_various_url_formats
 	 *
 	 * @param string $redirect Redirect URL.
 	 */
@@ -214,29 +214,9 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Data provider for:
-	 *  - test_custom_endpoint_redirects_if_checksum_valid
-	 *  - test_custom_endpoint_redirects_if_checksum_valid_using_plain_permalink
-	 *
-	 * @return array[] Data provider.
-	 */
-	public function data_custom_endpoint_redirects_if_checksum_valid() {
-		return array(
-			'domain'             => array( 'https://shuckedmusical.com/' ),
-			'path'               => array( 'https://shuckedmusical.com/path/to/resource' ),
-			'query'              => array( 'https://shuckedmusical.com/path/to/resource?query=string' ),
-			'fragment'           => array( 'https://shuckedmusical.com/path/to/resource#fragment' ),
-			'query and fragment' => array( 'https://shuckedmusical.com/path/to/resource?query=string#fragment' ),
-			'multiple queries'   => array( 'https://shuckedmusical.com/path/to/resource?query=string&another=query' ),
-			'encoded'            => array( 'https://shuckedmusical.com/path/to/resource?query=string%20with%20spaces' ),
-			'encoded fragment'   => array( 'https://shuckedmusical.com/path/to/resource#fragment%20with%20spaces' ),
-		);
-	}
-
-	/**
 	 * Ensure the content is updated for valid links.
 	 *
-	 * @dataProvider data_content_updated_for_valid_links
+	 * @dataProvider data_various_url_formats
 	 *
 	 * @param string $link Link to test.
 	 */
@@ -256,7 +236,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	/**
 	 * Ensure the content is updated for valid links using plain permalinks.
 	 *
-	 * @dataProvider data_content_updated_for_valid_links
+	 * @dataProvider data_various_url_formats
 	 *
 	 * @param string $link Link to test.
 	 */
@@ -275,11 +255,16 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Data provider for test_content_updated_for_valid_links.
+	 * Data provider for:
+	 *  - test_custom_endpoint_redirects_if_checksum_valid
+	 *  - test_custom_endpoint_redirects_if_checksum_valid_using_plain_permalink
+	 *  - test_custom_endpoint_redirects_if_checksum_valid_using_plain_permalink_on_site_with_pretty_links
+	 *  - test_content_updated_for_valid_links
+	 *  - test_content_updated_for_valid_links_using_plain_permalinks
 	 *
 	 * @return array[] Data provider.
 	 */
-	public function data_content_updated_for_valid_links() {
+	public function data_various_url_formats() {
 		return array(
 			'domain'             => array( 'https://shuckedmusical.com/' ),
 			'path'               => array( 'https://shuckedmusical.com/path/to/resource' ),
