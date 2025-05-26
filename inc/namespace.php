@@ -112,8 +112,8 @@ function rewrite_rules() {
 	add_rewrite_tag( '%pwcc-er-checksum%', '([^&]+)', 'pwcc-er-checksum=' );
 
 	add_rewrite_rule(
-		'^verified-redirect/([0-9a-zA-Z]+?)/?$',
-		'index.php?pwcc-er-checksum=$matches[1]',
+		'^verified-redirect/([0-9a-zA-Z]+?)/(.*)$',
+		'index.php?pwcc-er-checksum=$matches[1]&verified-redirect=$matches[2]',
 		'top'
 	);
 
@@ -132,6 +132,10 @@ function rewrite_rules() {
  * @return bool True if the redirect is valid, false otherwise.
  */
 function is_valid_redirect( $redirect, $checksum ) {
+	if ( ! is_string( $redirect ) || ! is_string( $checksum ) || ! $redirect || ! $checksum ) {
+		return false;
+	}
+
 	// Ensure the redirect is a valid URL.
 	if ( sanitize_url( $redirect ) !== $redirect ) {
 		return false;
@@ -143,6 +147,34 @@ function is_valid_redirect( $redirect, $checksum ) {
 	}
 
 	return true;
+}
+
+/**
+ * Get the redirect URL from the request.
+ *
+ * This retrieves the redirect URL from the query variable or request
+ * parameter. It handles both pretty permalinks and query string URLs.
+ *
+ * WP handles the encoding slightly differently depending on the
+ * permalink structure.
+ *
+ * @return string|false Redirect URL or null if not retrieved.
+ */
+function get_redirect_url_from_request() {
+	global $wp;
+
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- front end query var.
+	if ( isset( $_GET['verified-redirect'] ) ) {
+		// When using plain links, this value is decoded by WP.
+		return $wp->query_vars['verified-redirect'];
+	}
+
+	if ( isset( $wp->query_vars['verified-redirect'] ) ) {
+		// When using pretty permalinks, this value is not decoded by WP ¯\_(ツ)_/¯.
+		return rawurldecode( $wp->query_vars['verified-redirect'] );
+	}
+
+	return false;
 }
 
 /**
@@ -171,7 +203,7 @@ function parse_request( $wp ) {
 	 */
 	add_filter( 'posts_pre_query', '__return_empty_array' );
 
-	$redirect = $wp->query_vars['verified-redirect'];
+	$redirect = get_redirect_url_from_request();
 	$checksum = $wp->query_vars['pwcc-er-checksum'];
 
 	if ( ! is_valid_redirect( $redirect, $checksum ) ) {
@@ -187,7 +219,7 @@ function parse_request( $wp ) {
  */
 function send_headers() {
 	// Revalidate the url and checksum.
-	$redirect = get_query_var( 'verified-redirect' );
+	$redirect = get_redirect_url_from_request();
 	$checksum = get_query_var( 'pwcc-er-checksum' );
 
 	if ( ! is_valid_redirect( $redirect, $checksum ) ) {
@@ -289,24 +321,27 @@ function filter_the_content( $content ) {
 
 		$checksum = create_checksum( $href );
 
+		/*
+		 * Encode the URL for use in the redirect.
+		 *
+		 * `esc_url()` is not used for this as the entire URL is
+		 * used as a query string parameter and `esc_url()` will
+		 * not encode slashes and certain other characters for
+		 * the required use case.
+		 */
+		$url = rawurlencode( $href );
+
 		if ( get_option( 'permalink_structure' ) ) {
-			$base_permalink = home_url( "verified-redirect/{$checksum}/" );
+			$redirect = home_url( "verified-redirect/{$checksum}/$url" );
 		} else {
-			$base_permalink = add_query_arg(
+			$redirect = add_query_arg(
 				array(
-					'pwcc-er-checksum' => $checksum,
+					'pwcc-er-checksum'  => $checksum,
+					'verified-redirect' => $url,
 				),
 				home_url( '/' )
 			);
 		}
-
-		// Create the redirect URL.
-		$redirect = add_query_arg(
-			array(
-				'verified-redirect' => rawurlencode( $href ),
-			),
-			$base_permalink
-		);
 
 		// Replace the link with the redirect URL.
 		$dom->set_attribute( 'href', esc_url( $redirect ) );

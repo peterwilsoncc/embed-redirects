@@ -45,7 +45,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	 * Ensure the checksum is actually salted.
 	 */
 	public function test_checksum_is_salted() {
-		$url = 'https://shuckedmusical.com/';
+		$url = 'https://example.com/';
 		update_option( 'pwcc-er-checksum-salt', '1', 'no' );
 
 		$checksum_1 = \PWCC\EmbedRedirects\create_checksum( $url );
@@ -61,7 +61,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	 */
 	public function test_rewrite_rules() {
 		$this->assertContains(
-			'^verified-redirect/([0-9a-zA-Z]+?)/?$',
+			'^verified-redirect/([0-9a-zA-Z]+?)/(.*)$',
 			array_keys( get_option( 'rewrite_rules' ) )
 		);
 	}
@@ -98,7 +98,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 			}
 		);
 
-		$this->go_to( '/verified-redirect/1234567890/?verified-redirect=http%3A%2F%2Fshuckedmusical.com%2F' );
+		$this->go_to( home_url( '/verified-redirect/1234567890/http%3A%2F%2Fexample.com%2F' ) );
 		$this->assertSame( 0, $post_table_queries );
 	}
 
@@ -118,7 +118,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 			}
 		);
 
-		$this->go_to( '/verified-redirect/1234567890/?verified-redirect=http%3A%2F%2Fshuckedmusical.com%2F' );
+		$this->go_to( home_url( '/verified-redirect/1234567890/http%3A%2F%2Fexample.com%2F' ) );
 		$this->assertSame( 0, $filter->get_call_count() );
 	}
 
@@ -126,6 +126,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	 * Ensure the custom endpoint does not redirect if the checksum is invalid using plain permalink.
 	 */
 	public function test_custom_endpoint_does_not_redirect_if_checksum_invalid_using_plain_permalink() {
+		$this->set_permalink_structure( '' );
 		$filter = new \MockAction();
 		add_filter( 'wp_redirect', array( $filter, 'filter' ) );
 
@@ -138,14 +139,14 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 			}
 		);
 
-		$this->go_to( '/?pwcc-er-checksum=1234567890&verified-redirect=http%3A%2F%2Fshuckedmusical.com%2F' );
+		$this->go_to( home_url( '/?pwcc-er-checksum=1234567890&verified-redirect=http%3A%2F%2Fexample.com%2F' ) );
 		$this->assertSame( 0, $filter->get_call_count() );
 	}
 
 	/**
 	 * Ensure the custom endpoint redirects if the checksum is valid.
 	 *
-	 * @dataProvider data_custom_endpoint_redirects_if_checksum_valid
+	 * @dataProvider data_various_url_formats
 	 *
 	 * @param string $redirect Redirect URL.
 	 */
@@ -161,18 +162,19 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 		);
 
 		$checksum = \PWCC\EmbedRedirects\create_checksum( $redirect );
-		$this->go_to( "/verified-redirect/{$checksum}/?verified-redirect=" . rawurlencode( $redirect ) );
+		$this->go_to( home_url( "/verified-redirect/{$checksum}/" . rawurlencode( $redirect ) ) );
 		$this->assertSame( $redirect, $actual );
 	}
 
 	/**
 	 * Ensure the custom endpoint redirects if the checksum is valid using plain permalink.
 	 *
-	 * @dataProvider data_custom_endpoint_redirects_if_checksum_valid
+	 * @dataProvider data_various_url_formats
 	 *
 	 * @param string $redirect Redirect URL.
 	 */
 	public function test_custom_endpoint_redirects_if_checksum_valid_using_plain_permalink( $redirect ) {
+		$this->set_permalink_structure( '' );
 		$actual = null;
 		add_filter(
 			'wp_redirect',
@@ -184,52 +186,37 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 		);
 
 		$checksum = \PWCC\EmbedRedirects\create_checksum( $redirect );
-		$this->go_to( "?pwcc-er-checksum={$checksum}&verified-redirect=" . rawurlencode( $redirect ) );
+		$this->go_to( home_url( "?pwcc-er-checksum={$checksum}&verified-redirect=" . rawurlencode( $redirect ) ) );
 		$this->assertSame( $redirect, $actual );
 	}
 
 	/**
-	 * Data provider for:
-	 *  - test_custom_endpoint_redirects_if_checksum_valid
-	 *  - test_custom_endpoint_redirects_if_checksum_valid_using_plain_permalink
+	 * Ensure the custom endpoint redirects if the checksum is valid using plain permalink on sites with pretty links.
 	 *
-	 * @return array[] Data provider.
+	 * @dataProvider data_various_url_formats
+	 *
+	 * @param string $redirect Redirect URL.
 	 */
-	public function data_custom_endpoint_redirects_if_checksum_valid() {
-		return array(
-			'domain'             => array( 'https://shuckedmusical.com/' ),
-			'path'               => array( 'https://shuckedmusical.com/path/to/resource' ),
-			'query'              => array( 'https://shuckedmusical.com/path/to/resource?query=string' ),
-			'fragment'           => array( 'https://shuckedmusical.com/path/to/resource#fragment' ),
-			'query and fragment' => array( 'https://shuckedmusical.com/path/to/resource?query=string#fragment' ),
-			'muliple queries'    => array( 'https://shuckedmusical.com/path/to/resource?query=string&another=query' ),
-			'encoded'            => array( 'https://shuckedmusical.com/path/to/resource?query=string%20with%20spaces' ),
-			'encoded fragment'   => array( 'https://shuckedmusical.com/path/to/resource#fragment%20with%20spaces' ),
+	public function test_custom_endpoint_redirects_if_checksum_valid_using_plain_permalink_on_site_with_pretty_links( $redirect ) {
+		$actual = null;
+		add_filter(
+			'wp_redirect',
+			function ( $location ) use ( &$actual ) {
+				$actual = $location;
+				// Prevent wp_redirect() from actually redirecting.
+				return false;
+			}
 		);
-	}
 
-	/**
-	 * Ensure plain permalinks are used for sites without rewrite rules.
-	 */
-	public function test_plain_permalink_structure() {
-		$this->set_permalink_structure( '' );
-		$link     = 'http://shuckedmusical.com/';
-		$content  = "<a href=\"{$link}\">Link</a>";
-		$checksum = \PWCC\EmbedRedirects\create_checksum( $link );
-
-		// Set up the conditionals so is_embed is true.
-		$this->go_to( get_post_embed_url( self::$post_id ) );
-		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- testing WP hook.
-		$filtered_content = apply_filters( 'the_content', $content );
-
-		$this->assertTrue( is_embed() );
-		$this->assertStringContainsString( 'href="' . esc_url( home_url( "/?pwcc-er-checksum={$checksum}&verified-redirect=" . rawurlencode( $link ) ) ) . '"', $filtered_content );
+		$checksum = \PWCC\EmbedRedirects\create_checksum( $redirect );
+		$this->go_to( home_url( "?pwcc-er-checksum={$checksum}&verified-redirect=" . rawurlencode( $redirect ) ) );
+		$this->assertSame( $redirect, $actual );
 	}
 
 	/**
 	 * Ensure the content is updated for valid links.
 	 *
-	 * @dataProvider data_content_updated_for_valid_links
+	 * @dataProvider data_various_url_formats
 	 *
 	 * @param string $link Link to test.
 	 */
@@ -243,24 +230,57 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 		$filtered_content = apply_filters( 'the_content', $content );
 
 		$this->assertTrue( is_embed() );
-		$this->assertStringContainsString( 'href="' . home_url( "/verified-redirect/{$checksum}/?verified-redirect=" . rawurlencode( $link ) ) . '"', $filtered_content );
+		$this->assertStringContainsString( 'href="' . esc_url( home_url( "/verified-redirect/{$checksum}/" . rawurlencode( $link ) ) ) . '"', $filtered_content );
 	}
 
 	/**
-	 * Data provider for test_content_updated_for_valid_links.
+	 * Ensure the content is updated for valid links using plain permalinks.
+	 *
+	 * @dataProvider data_various_url_formats
+	 *
+	 * @param string $link Link to test.
+	 */
+	public function test_content_updated_for_valid_links_using_plain_permalinks( $link ) {
+		$this->set_permalink_structure( '' );
+		$content  = "<a href=\"{$link}\">Link</a>";
+		$checksum = \PWCC\EmbedRedirects\create_checksum( $link );
+
+		// Set up the conditionals so is_embed is true.
+		$this->go_to( get_post_embed_url( self::$post_id ) );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- testing WP hook.
+		$filtered_content = apply_filters( 'the_content', $content );
+
+		$this->assertTrue( is_embed() );
+		$this->assertStringContainsString( 'href="' . esc_url( home_url( "/?pwcc-er-checksum={$checksum}&verified-redirect=" . rawurlencode( $link ) ) ) . '"', $filtered_content );
+	}
+
+	/**
+	 * Data provider for:
+	 *  - test_custom_endpoint_redirects_if_checksum_valid
+	 *  - test_custom_endpoint_redirects_if_checksum_valid_using_plain_permalink
+	 *  - test_custom_endpoint_redirects_if_checksum_valid_using_plain_permalink_on_site_with_pretty_links
+	 *  - test_content_updated_for_valid_links
+	 *  - test_content_updated_for_valid_links_using_plain_permalinks
 	 *
 	 * @return array[] Data provider.
 	 */
-	public function data_content_updated_for_valid_links() {
+	public function data_various_url_formats() {
 		return array(
-			'domain'             => array( 'https://shuckedmusical.com/' ),
-			'path'               => array( 'https://shuckedmusical.com/path/to/resource' ),
-			'query'              => array( 'https://shuckedmusical.com/path/to/resource?query=string' ),
-			'fragment'           => array( 'https://shuckedmusical.com/path/to/resource#fragment' ),
-			'query and fragment' => array( 'https://shuckedmusical.com/path/to/resource?query=string#fragment' ),
-			'muliple queries'    => array( 'https://shuckedmusical.com/path/to/resource?query=string&another=query' ),
-			'encoded'            => array( 'https://shuckedmusical.com/path/to/resource?query=string%20with%20spaces' ),
-			'encoded fragment'   => array( 'https://shuckedmusical.com/path/to/resource#fragment%20with%20spaces' ),
+			'domain'                => array( 'https://example.com/' ),
+			'path'                  => array( 'https://example.com/path/to/resource' ),
+			'query'                 => array( 'https://example.com/path/to/resource?query=string' ),
+			'fragment'              => array( 'https://example.com/path/to/resource#fragment' ),
+			'query and fragment'    => array( 'https://example.com/path/to/resource?query=string#fragment' ),
+			'multiple queries'      => array( 'https://example.com/path/to/resource?query=string&another=query' ),
+			'encoded'               => array( 'https://example.com/path/to/resource?query=string%20with%20spaces' ),
+			'encoded fragment'      => array( 'https://example.com/path/to/resource#fragment%20with%20spaces' ),
+			'emoji'                 => array( 'https://example.com/path/to/😊' ),
+			'custom port'           => array( 'https://example.com:8080/path/to/resource' ),
+			'subdomain'             => array( 'https://subdomain.example.com/path/to/resource' ),
+			'IP address'            => array( 'https://192.168.0.15/path/to/resource' ),
+			'IPv6 address'          => array( 'https://[fdf8:f53b:82e4::53]/path/to/resource' ),
+			'hyphenated sub domain' => array( 'https://sub-domain.example.com/path/to/resource' ),
+			'special characters'    => array( 'https://테스트.example.com/' ),
 		);
 	}
 
@@ -281,7 +301,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 		$filtered_content = apply_filters( 'the_content', $content );
 
 		$this->assertTrue( is_embed() );
-		$this->assertStringNotContainsString( 'href="' . home_url( "/verified-redirect/{$checksum}/?verified-redirect=" . rawurlencode( $link ) ) . '"', $filtered_content );
+		$this->assertStringNotContainsString( 'href="' . home_url( "/verified-redirect/{$checksum}/" . rawurlencode( $link ) ) . '"', $filtered_content );
 		$this->assertStringContainsString( $content, $filtered_content );
 	}
 
@@ -292,9 +312,9 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	 */
 	public function data_content_is_not_updated_for_invalid_links() {
 		return array(
-			'No scheme'         => array( 'shuckedmusical.com/' ),
-			'FTP URL'           => array( 'ftp://shuckedmusical.com/' ),
-			'Mailto URL'        => array( 'mailto:bounce@shuckedmusical.com' ),
+			'No scheme'         => array( 'example.com/' ),
+			'FTP URL'           => array( 'ftp://example.com/' ),
+			'Mailto URL'        => array( 'mailto:bounce@example.com' ),
 			'JavaScript URL'    => array( 'javascript:alert("Hello, World!");' ),
 			'Telephone URL'     => array( 'tel:+1234567890' ),
 			'Data URL'          => array( 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==' ),
@@ -324,7 +344,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 		$filtered_content = apply_filters( 'the_content', $content );
 
 		$this->assertTrue( is_embed() );
-		$this->assertStringNotContainsString( 'href="' . home_url( "/verified-redirect/{$checksum}/?verified-redirect=" . rawurlencode( $link ) ) . '"', $filtered_content );
+		$this->assertStringNotContainsString( 'href="' . home_url( "/verified-redirect/{$checksum}/" . rawurlencode( $link ) ) . '"', $filtered_content );
 		$this->assertStringContainsString( $content, $filtered_content );
 	}
 
@@ -364,7 +384,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	 * @param string $go_to The URL to go to.
 	 */
 	public function test_content_not_changed_for_non_embeds( $go_to ) {
-		$content = '<a href="https://shuckedmusical.com/">Link</a>';
+		$content = '<a href="https://example.com/">Link</a>';
 
 		// This is not available in the data provider is is replaced here.
 		$go_to = str_replace( '%%POST_ID%%', self::$post_id, $go_to );
