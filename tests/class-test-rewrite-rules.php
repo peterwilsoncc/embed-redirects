@@ -211,24 +211,6 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Ensure plain permalinks are used for sites without rewrite rules.
-	 */
-	public function test_plain_permalink_structure() {
-		$this->set_permalink_structure( '' );
-		$link     = 'http://shuckedmusical.com/';
-		$content  = "<a href=\"{$link}\">Link</a>";
-		$checksum = \PWCC\EmbedRedirects\create_checksum( $link );
-
-		// Set up the conditionals so is_embed is true.
-		$this->go_to( get_post_embed_url( self::$post_id ) );
-		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- testing WP hook.
-		$filtered_content = apply_filters( 'the_content', $content );
-
-		$this->assertTrue( is_embed() );
-		$this->assertStringContainsString( 'href="' . esc_url( home_url( "/?pwcc-er-checksum={$checksum}&verified-redirect=" . rawurlencode( $link ) ) ) . '"', $filtered_content );
-	}
-
-	/**
 	 * Ensure the content is updated for valid links.
 	 *
 	 * @dataProvider data_content_updated_for_valid_links
@@ -245,7 +227,28 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 		$filtered_content = apply_filters( 'the_content', $content );
 
 		$this->assertTrue( is_embed() );
-		$this->assertStringContainsString( 'href="' . home_url( "/verified-redirect/{$checksum}/" . rawurlencode( $link ) ) . '"', $filtered_content );
+		$this->assertStringContainsString( 'href="' . esc_url( home_url( "/verified-redirect/{$checksum}/" . rawurlencode( $link ) ) ) . '"', $filtered_content );
+	}
+
+	/**
+	 * Ensure the content is updated for valid links using plain permalinks.
+	 *
+	 * @dataProvider data_content_updated_for_valid_links
+	 *
+	 * @param string $link Link to test.
+	 */
+	public function test_content_updated_for_valid_links_using_plain_permalinks( $link ) {
+		$this->set_permalink_structure( '' );
+		$content  = "<a href=\"{$link}\">Link</a>";
+		$checksum = \PWCC\EmbedRedirects\create_checksum( $link );
+
+		// Set up the conditionals so is_embed is true.
+		$this->go_to( get_post_embed_url( self::$post_id ) );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- testing WP hook.
+		$filtered_content = apply_filters( 'the_content', $content );
+
+		$this->assertTrue( is_embed() );
+		$this->assertStringContainsString( 'href="' . esc_url( home_url( "/?pwcc-er-checksum={$checksum}&verified-redirect=" . rawurlencode( $link ) ) ) . '"', $filtered_content );
 	}
 
 	/**
