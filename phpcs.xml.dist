@@ -42,4 +42,8 @@
 			<property name="blank_line_check" value="true"/>
 		</properties>
 	</rule>
+
+	<rule ref="WordPress.Files.FileName">
+		<exclude-pattern type="relative" name="^/tests/unit-tests/*"/>
+	</rule>
 </ruleset>
