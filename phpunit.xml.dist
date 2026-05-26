@@ -9,8 +9,7 @@
 	>
 	<testsuites>
 		<testsuite name="embed-redirects">
-			<directory prefix="class-test-" suffix=".php">./tests/</directory>
-			<exclude>./tests/test-sample.php</exclude>
+			<directory suffix=".php">./tests/unit-tests/</directory>
 		</testsuite>
 	</testsuites>
 </phpunit>
