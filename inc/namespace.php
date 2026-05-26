@@ -10,6 +10,8 @@
 
 namespace PWCC\EmbedRedirects;
 
+const PLUGIN_VERSION = '1.0.0';
+
 /**
  * Bootstrap the plugin.
  */
