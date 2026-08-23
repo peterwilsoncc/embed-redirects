@@ -386,7 +386,7 @@ function filter_the_content( $content ) {
 
 		// Add the data attribute containing the replacement URL.
 		add_action( 'embed_footer', __NAMESPACE__ . '\\print_embed_scripts', 5 );
-		$dom->set_attribute( 'data-pwcc-er-redirect-url', esc_url( $redirect ) );
+		$dom->set_attribute( 'data-pwcc-er-redirect-url', $redirect );
 	}
 
 	return $dom->get_updated_html();
