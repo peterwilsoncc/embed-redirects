@@ -10,8 +10,6 @@
 
 namespace PWCC\EmbedRedirects;
 
-const PLUGIN_VERSION = '1.0.0';
-
 /**
  * Bootstrap the plugin.
  */
@@ -266,6 +264,47 @@ function send_headers() {
 }
 
 /**
+ * Print the embed JavaScript.
+ *
+ * Output the JavaScript to replace HREF tags with their
+ * redirecting equivalent. This is to allow the links to
+ * display correctly when hovered over but still redirect
+ * when the user clicks on them.
+ *
+ * Runs on `embed_footer, 5`.
+ */
+function print_embed_scripts() {
+	$script = <<<'JS'
+		(( document )=>{
+			function linkClickHandler( e ) {
+				var target = e.target,
+					href;
+				if ( target.hasAttribute( 'href' ) ) {
+					href = target.getAttribute( 'href' );
+				} else {
+					target = target.parentElement;
+					href = target.parentElement.getAttribute( 'href' );
+				}
+
+				// Only catch clicks from the primary mouse button, without any modifiers.
+				if ( event.altKey || event.ctrlKey || event.metaKey || event.shiftKey ) {
+					return;
+				}
+
+				if ( ! target.hasAttribute( 'data-pwcc-er-redirect-url' ) ) {
+					return;
+				}
+
+				target.setAttribute( 'href', target.getAttribute( 'data-pwcc-er-redirect-url' ) );
+			}
+
+			document.addEventListener( 'click', linkClickHandler );
+		})( document );
+	JS;
+	wp_print_inline_script_tag( $script );
+}
+
+/**
  * Modify links for embeds.
  *
  * This replaces the links in the content with a redirect URL. The
@@ -345,8 +384,9 @@ function filter_the_content( $content ) {
 			);
 		}
 
-		// Replace the link with the redirect URL.
-		$dom->set_attribute( 'href', esc_url( $redirect ) );
+		// Add the data attribute containing the replacement URL.
+		add_action( 'embed_footer', __NAMESPACE__ . '\\print_embed_scripts', 5 );
+		$dom->set_attribute( 'data-pwcc-er-redirect-url', esc_url( $redirect ) );
 	}
 
 	return $dom->get_updated_html();
