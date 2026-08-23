@@ -19,6 +19,7 @@ function bootstrap() {
 	add_action( 'init', __NAMESPACE__ . '\\rewrite_rules' );
 	add_action( 'parse_request', __NAMESPACE__ . '\\parse_request' );
 	add_filter( 'the_content', __NAMESPACE__ . '\\filter_the_content' );
+	add_filter( 'robots_txt', __NAMESPACE__ . '\\robots_txt' );
 }
 
 /**
@@ -392,4 +393,18 @@ function filter_the_content( $content ) {
 	}
 
 	return $dom->get_updated_html();
+}
+
+/**
+ * Disallow robots from accessing redirects.
+ *
+ * @param string $robots_text Contents of robots.txt file.
+ * @return string Modified contents.
+ */
+function robots_txt( $robots_text ) {
+	$robots_text .= "\n";
+	$robots_text .= "User-agent: *\n";
+	$robots_text .= "Disallow: /verified-redirect/\n";
+
+	return $robots_text;
 }
