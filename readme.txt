@@ -2,7 +2,7 @@
 Contributors: peterwilsoncc
 Tags: redirects, embeds
 Tested up to: 6.8
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: MIT
 License URI: https://github.com/peterwilsoncc/embed-redirects/blob/main/LICENSE
 
@@ -27,6 +27,12 @@ There isn't one, the plugin doesn't have any options to configure so works upon 
 The plugin attempts to flush the WordPress rewrite rules during activation. If this failed for some reason then visit the WordPress Dashboard > Settings > Permalinks page and see if that helps.
 
 == Changelog ==
+
+= 1.1.0 =
+
+* Use JavaScript to replace links upon click to allow them to display properly when hovering.
+* Disallow crawling of redirects by search engines.
+
 = 1.0 =
 
 Initial release.

@@ -10,7 +10,7 @@
  * @wordpress-plugin
  * Plugin Name: Embed Redirects
  * Description: Allow links to third party websites in embeds via a redirect.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Requires at least: 6.6
  * Requires PHP: 8.0
  * Author: Peter Wilson
