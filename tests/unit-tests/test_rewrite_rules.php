@@ -230,7 +230,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 		$filtered_content = apply_filters( 'the_content', $content );
 
 		$this->assertTrue( is_embed() );
-		$this->assertStringContainsString( 'href="' . esc_url( home_url( "/verified-redirect/{$checksum}/" . rawurlencode( $link ) ) ) . '"', $filtered_content );
+		$this->assertStringContainsString( 'data-pwcc-er-redirect-url="' . esc_url( home_url( "/verified-redirect/{$checksum}/" . rawurlencode( $link ) ) ) . '"', $filtered_content );
 	}
 
 	/**
@@ -251,7 +251,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 		$filtered_content = apply_filters( 'the_content', $content );
 
 		$this->assertTrue( is_embed() );
-		$this->assertStringContainsString( 'href="' . esc_url( home_url( "/?pwcc-er-checksum={$checksum}&verified-redirect=" . rawurlencode( $link ) ) ) . '"', $filtered_content );
+		$this->assertStringContainsString( 'data-pwcc-er-redirect-url="' . esc_attr( home_url( "/?pwcc-er-checksum={$checksum}&verified-redirect=" . rawurlencode( $link ) ) ) . '"', $filtered_content );
 	}
 
 	/**
@@ -301,7 +301,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 		$filtered_content = apply_filters( 'the_content', $content );
 
 		$this->assertTrue( is_embed() );
-		$this->assertStringNotContainsString( 'href="' . home_url( "/verified-redirect/{$checksum}/" . rawurlencode( $link ) ) . '"', $filtered_content );
+		$this->assertStringNotContainsString( 'data-pwcc-er-redirect-url="' . home_url( "/verified-redirect/{$checksum}/" . rawurlencode( $link ) ) . '"', $filtered_content );
 		$this->assertStringContainsString( $content, $filtered_content );
 	}
 
@@ -344,7 +344,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 		$filtered_content = apply_filters( 'the_content', $content );
 
 		$this->assertTrue( is_embed() );
-		$this->assertStringNotContainsString( 'href="' . home_url( "/verified-redirect/{$checksum}/" . rawurlencode( $link ) ) . '"', $filtered_content );
+		$this->assertStringNotContainsString( 'data-pwcc-er-redirect-url="' . home_url( "/verified-redirect/{$checksum}/" . rawurlencode( $link ) ) . '"', $filtered_content );
 		$this->assertStringContainsString( $content, $filtered_content );
 	}
 
@@ -372,7 +372,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 		$filtered_content = apply_filters( 'the_content', $content );
 
 		$this->assertTrue( is_embed() );
-		$this->assertStringNotContainsString( 'href="' . home_url( '/verified-redirect/' ), $filtered_content );
+		$this->assertStringNotContainsString( 'data-pwcc-er-redirect-url="' . home_url( '/verified-redirect/' ), $filtered_content );
 		$this->assertStringContainsString( $content, $filtered_content );
 	}
 
@@ -395,7 +395,7 @@ class Test_Rewrite_Rules extends WP_UnitTestCase {
 		$filtered_content = apply_filters( 'the_content', $content );
 
 		$this->assertFalse( is_embed() );
-		$this->assertStringNotContainsString( 'href="' . home_url( '/verified-redirect/' ), $filtered_content );
+		$this->assertStringNotContainsString( 'data-pwcc-er-redirect-url="' . home_url( '/verified-redirect/' ), $filtered_content );
 		$this->assertStringContainsString( $content, $filtered_content );
 	}
 
