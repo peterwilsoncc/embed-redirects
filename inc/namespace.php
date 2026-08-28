@@ -256,6 +256,11 @@ function send_headers() {
 	 * The use of a checksum is the safety mechanism to prevent open redirects.
 	 * That allows the use of `wp_redirect()` rather than `wp_safe_redirect()`.
 	 */
+
+	if ( ! headers_sent() ) {
+		header( 'X-Robots-Tag: noindex' );
+	}
+
 	// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
 	wp_redirect( $redirect, $redirect_code, 'verified-redirect' );
 	if ( class_exists( '\WP_UnitTestCase' ) ) {
