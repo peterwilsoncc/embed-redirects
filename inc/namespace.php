@@ -19,7 +19,6 @@ function bootstrap() {
 	add_action( 'init', __NAMESPACE__ . '\\rewrite_rules' );
 	add_action( 'parse_request', __NAMESPACE__ . '\\parse_request' );
 	add_filter( 'the_content', __NAMESPACE__ . '\\filter_the_content' );
-	add_filter( 'robots_txt', __NAMESPACE__ . '\\robots_txt' );
 }
 
 /**
@@ -257,6 +256,11 @@ function send_headers() {
 	 * The use of a checksum is the safety mechanism to prevent open redirects.
 	 * That allows the use of `wp_redirect()` rather than `wp_safe_redirect()`.
 	 */
+
+	if ( ! headers_sent() ) {
+		header( 'X-Robots-Tag: noindex' );
+	}
+
 	// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
 	wp_redirect( $redirect, $redirect_code, 'verified-redirect' );
 	if ( class_exists( '\WP_UnitTestCase' ) ) {
@@ -393,18 +397,4 @@ function filter_the_content( $content ) {
 	}
 
 	return $dom->get_updated_html();
-}
-
-/**
- * Disallow robots from accessing redirects.
- *
- * @param string $robots_text Contents of robots.txt file.
- * @return string Modified contents.
- */
-function robots_txt( $robots_text ) {
-	$robots_text .= "\n";
-	$robots_text .= "User-agent: *\n";
-	$robots_text .= "Disallow: /verified-redirect/\n";
-
-	return $robots_text;
 }
