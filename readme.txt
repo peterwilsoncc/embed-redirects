@@ -1,7 +1,7 @@
 === Embed Redirects ===
 Contributors: peterwilsoncc
 Tags: redirects, embeds
-Tested up to: 6.8
+Tested up to: 7.1
 Stable tag: 1.1.0
 License: MIT
 License URI: https://github.com/peterwilsoncc/embed-redirects/blob/main/LICENSE
